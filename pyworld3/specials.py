@@ -62,7 +62,7 @@ def switch(var1, var2, boolean_switch):
             return var2
 
 
-def clip(func2, func1, t, t_switch):
+def clip(func2, func1, t, t_switch=None):
     """
     Logical function used as time switch to change parameter value.
 
@@ -85,10 +85,10 @@ def clip(func2, func1, t, t_switch):
     if np.isnan(func1) or np.isnan(func2):
         return np.nan
     else:
-        if t <= t_switch:
-            return func1
+        if t_switch is not None:
+            return func1 if t <= t_switch else func2
         else:
-            return func2
+            return max(min(func2, t), func1)
 
 
 def ramp(slope, t_offset, t):
@@ -132,8 +132,6 @@ class Smooth:
     Call parameters) at a given step k.
 
     Computes the smoothed vector out_arr from the input in_arr, at the step k.
-    
-    2004 update: added init value
 
     Parameters
     ----------
@@ -159,29 +157,34 @@ class Smooth:
 
     """
 
-
     def __init__(self, in_arr, dt, t, method="euler"):
         self.dt = dt
         self.out_arr = np.zeros((t.size,))
         self.in_arr = in_arr  # use in_arr by reference
         self.method = method
 
-    def __call__(self, k, delay, init_val): #2004 update, added init Val
+    def __call__(self, k, delay):
         if k == 0:
-            self.out_arr[k] = init_val
-
+            self.out_arr[k] = self.in_arr[k]
         else:
             if self.method == "odeint":
-                res = odeint(func_delay1, self.out_arr[k-1], [0, self.dt], args=(self.in_arr[k-1], delay), )
+                res = odeint(
+                    func_delay1,
+                    self.out_arr[k - 1],
+                    [0, self.dt],
+                    args=(self.in_arr[k - 1], delay),
+                )
                 self.out_arr[k] = res[1, :]
             elif self.method == "euler":
-                    dout = self.in_arr[k-1] - self.out_arr[k-1]
-                    dout *= self.dt/delay
-                    self.out_arr[k] = self.out_arr[k-1] + dout
+                dout = self.in_arr[k - 1] - self.out_arr[k - 1]
+                dout *= self.dt / delay
+                self.out_arr[k] = self.out_arr[k - 1] + dout
+
         return self.out_arr[k]
 
 
 DlInf1 = Smooth
+
 
 def func_delay3(out_, t_, in_, del_):
     """
@@ -234,9 +237,9 @@ class Delay3:
         self.in_arr = in_arr  # use in_arr as reference
         self.method = method
         if self.method == "euler":
-            self.A_norm = np.array([[-1., 0., 0.],
-                                    [1., -1., 0.],
-                                    [0., 1., -1.]])
+            self.A_norm = np.array(
+                [[-1.0, 0.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, -1.0]]
+            )
             self.B_norm = np.array([1, 0, 0])
 
     def _init_out_arr(self, delay):
@@ -247,14 +250,20 @@ class Delay3:
             self._init_out_arr(delay)
         else:
             if self.method == "odeint":
-                res = odeint(func_delay3, self.out_arr[k-1, :],
-                             [0, self.dt], args=(self.in_arr[k-1], delay))
+                res = odeint(
+                    func_delay3,
+                    self.out_arr[k - 1, :],
+                    [0, self.dt],
+                    args=(self.in_arr[k - 1], delay),
+                )
                 self.out_arr[k, :] = res[1, :]
             elif self.method == "euler":
-                dout = (self.A_norm  @ self.out_arr[k-1, :] +
-                        self.B_norm * self.in_arr[k-1])
-                dout *= self.dt*3/delay
-                self.out_arr[k, :] = self.out_arr[k-1, :] + dout
+                dout = (
+                    self.A_norm @ self.out_arr[k - 1, :]
+                    + self.B_norm * self.in_arr[k - 1]
+                )
+                dout *= self.dt * 3 / delay
+                self.out_arr[k, :] = self.out_arr[k - 1, :] + dout
 
         return self.out_arr[k, 2]
 
