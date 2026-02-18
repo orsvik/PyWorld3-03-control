@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Updated 2026-02-15 by orsvik using code from Matthieu Barreau (control functions) first commit (from Sep 19, 2023 -- not tested, errors may occur)
-"""
 
 # © Copyright Charles Vanwynsberghe (2021)
 
@@ -35,14 +32,20 @@ Updated 2026-02-15 by orsvik using code from Matthieu Barreau (control functions
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL license and that you accept its terms.
 
+
+# Control functions first implemented by Matthieu Barreau (mBarreau)
+# Modifications by orsvik
+
+
 import os
 import json
 
 from scipy.interpolate import interp1d
 import numpy as np
+import inspect
 
 from .specials import Smooth, clip
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Capital:
@@ -58,6 +61,7 @@ class Capital:
 
     >>> cap = Capital()
     >>> cap.set_capital_table_functions()
+    >>> cap.set_control_functions()
     >>> cap.init_capital_variables()
     >>> cap.init_capital_constants()
     >>> cap.set_capital_delay_functions()
@@ -79,8 +83,7 @@ class Capital:
         labor force participation fraction []. The default is 0.75.
     lufdt : float, optional
         labor utilization fraction delay time [years]. The default is 2.
-    
-    
+
     **Control signals**
     icor_control : function, optional
         icor, control function with argument time [years]. The default is 3.
@@ -92,7 +95,12 @@ class Capital:
         alsc, control value with argument time [years]. The default is 20.
     fioac_control : function, optional
         fioac, control value with argument time [years]. The default is 0.43.
-    
+    isopc_control : function, optional
+        fraction of normal isopc used, control function with argument time [years]. The default is 1.0
+    fioas_control : function, optional
+        fraction of normal fioas used, control function with argument time [years]. The default is 1.0
+
+
 
     **Industrial subsector**
 
@@ -112,16 +120,10 @@ class Capital:
         average lifetime of industrial capital [years].
     fioac : numpy.ndarray
         fraction of industrial output allocated to consumption [].
-    fioacc : numpy.ndarray
-        fioac constant [].
     fioacv : numpy.ndarray
         fioac variable [].
     fioai : numpy.ndarray
         fraction of industrial output allocated to industry [].
-    cio : numpy.ndarray
-        Consumption of Industrial  Output, added, 2004 update
-    ciopc : numpy.ndarray
-        Consumption of Industrial  Output per capita, added, 2004 update
 
     **Service subsector**
 
@@ -141,16 +143,8 @@ class Capital:
         average lifetime of service capital [years].
     isopc : numpy.ndarray
         indicated service output per capita [dollars/person-year].
-    isopc1 : numpy.ndarray
-        isopc, value before time=pyear [dollars/person-year].
-    isopc2 : numpy.ndarray
-        isopc, value after time=pyear [dollars/person-year].
     fioas : numpy.ndarray
         fraction of industrial output allocated to services [].
-    fioas1 : numpy.ndarray
-        fioas, value before time=pyear [].
-    fioas2 : numpy.ndarray
-        fioas, value after time=pyear [].
 
     **Job subsector**
 
@@ -179,24 +173,33 @@ class Capital:
 
     """
 
-    def __init__(self, year_min=1900, year_max=2000, dt=1, pyear=1975,
-                 verbose=False):
-        self.pyear = pyear
+    def __init__(self, year_min=1900, year_max=2000, dt=1, verbose=False):
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
-        self.verbose = False
+        self.verbose = verbose
 
-    def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2, 
-                               icor_control=lambda _ : 3,
-                               scor_control=lambda _ : 1,
-                               alic_control=lambda _ : 14,
-                               alsc_control=lambda _ : 20, 
-                               fioac_control= lambda _ : 0.43):
+    def set_capital_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+            "icor_control": lambda _: 3,
+            "scor_control": lambda _: 1,
+            "alic_control": lambda _: 14,
+            "alsc_control": lambda _: 20,
+            "fioac_control": lambda _: 0.43,
+            "isopc_control": lambda _: 1.0,
+            "fioas_control": lambda _: 1.0,
+        }
+        _create_control_function(self, default_control_functions, control_functions)
+
+    def init_capital_constants(
+        self, ici=2.1e11, sci=1.44e11, iet=4000, iopcd=400, lfpf=0.75, lufdt=2
+    ):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -208,11 +211,6 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.icor_control = icor_control
-        self.scor_control = scor_control
-        self.alic_control = alic_control
-        self.alsc_control = alsc_control
-        self.fioac_control = fioac_control
 
     def init_capital_variables(self):
         """
@@ -230,12 +228,8 @@ class Capital:
         self.iopc = np.full((self.n,), np.nan)
         self.alic = np.full((self.n,), np.nan)
         self.fioac = np.full((self.n,), np.nan)
-        self.fioacc = np.full((self.n,), np.nan)
         self.fioai = np.full((self.n,), np.nan)
         self.fioacv = np.full((self.n,), np.nan)
-        #added, 2004 update
-        self.cio = np.full((self.n,), np.nan)
-        self.ciopc = np.full((self.n,), np.nan)
         # service subsector
         self.sc = np.full((self.n,), np.nan)
         self.so = np.full((self.n,), np.nan)
@@ -245,11 +239,7 @@ class Capital:
         self.sopc = np.full((self.n,), np.nan)
         self.alsc = np.full((self.n,), np.nan)
         self.isopc = np.full((self.n,), np.nan)
-        self.isopc1 = np.full((self.n,), np.nan)
-        self.isopc2 = np.full((self.n,), np.nan)
         self.fioas = np.full((self.n,), np.nan)
-        self.fioas1 = np.full((self.n,), np.nan)
-        self.fioas2 = np.full((self.n,), np.nan)
         # job subsector
         self.cuf = np.full((self.n,), np.nan)
         self.j = np.full((self.n,), np.nan)
@@ -279,9 +269,10 @@ class Capital:
         """
         var_smooth = ["LUF"]
         for var_ in var_smooth:
-            func_delay = Smooth(getattr(self, var_.lower()),
-                                self.dt, self.time, method=method)
-            setattr(self, "smooth_"+var_.lower(), func_delay)
+            func_delay = Smooth(
+                getattr(self, var_.lower()), self.dt, self.time, method=method
+            )
+            setattr(self, "smooth_" + var_.lower(), func_delay)
 
     def set_capital_table_functions(self, json_file=None):
         """
@@ -301,17 +292,26 @@ class Capital:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["FIOACV", "ISOPC1", "ISOPC2", "FIOAS1", "FIOAS2",
-                      "JPICU", "JPSCU", "JPH", "CUF"]
+        func_names = [
+            "FIOACV",
+            "ISOPC",
+            "FIOAS",
+            "JPICU",
+            "JPSCU",
+            "JPH",
+            "CUF",
+        ]
 
         for func_name in func_names:
             for table in tables:
                 if table["y.name"] == func_name:
-                    func = interp1d(table["x.values"], table["y.values"],
-                                    bounds_error=False,
-                                    fill_value=(table["y.values"][0],
-                                                table["y.values"][-1]))
-                    setattr(self, func_name.lower()+"_f", func)
+                    func = interp1d(
+                        table["x.values"],
+                        table["y.values"],
+                        bounds_error=False,
+                        fill_value=(table["y.values"][0], table["y.values"][-1]),
+                    )
+                    setattr(self, func_name.lower() + "_f", func)
 
     def init_exogenous_inputs(self):
         """
@@ -335,23 +335,40 @@ class Capital:
         self.fioaa = np.full((self.n,), np.nan)
         # tables
         func_names = ["AIPH", "AL", "POP", "FCAOR", "FIOAA"]
-        y_values = [[5., 11., 21., 34., 58., 86., 123., 61., 23., 8., 3.],
-                    [_ * 10**8 for _ in [9., 10., 11., 13., 16., 20., 23.,
-                                         24., 24., 24., 24.]],
-                    [_ * 10**9 for _ in [1.65, 1.73, 1.8, 2.1, 2.3, 2.55, 3.,
-                                         3.65, 4., 4.6, 5.15]],
-                    11*[.05],
-                    11*[.1]]
+        y_values = [
+            [5.0, 11.0, 21.0, 34.0, 58.0, 86.0, 123.0, 61.0, 23.0, 8.0, 3.0],
+            [
+                _ * 10**8
+                for _ in [
+                    9.0,
+                    10.0,
+                    11.0,
+                    13.0,
+                    16.0,
+                    20.0,
+                    23.0,
+                    24.0,
+                    24.0,
+                    24.0,
+                    24.0,
+                ]
+            ],
+            [
+                _ * 10**9
+                for _ in [1.65, 1.73, 1.8, 2.1, 2.3, 2.55, 3.0, 3.65, 4.0, 4.6, 5.15]
+            ],
+            11 * [0.05],
+            11 * [0.1],
+        ]
         x_to_2100 = np.linspace(1900, 2100, 11)
         x_to_2000 = np.linspace(1900, 2000, 11)
         x_values = [x_to_2100, x_to_2100, x_to_2000, x_to_2000, x_to_2000]
 
         for func_name, x_vals, y_vals in zip(func_names, x_values, y_values):
-            func = interp1d(x_vals, y_vals,
-                            bounds_error=False,
-                            fill_value=(y_vals[0],
-                                        y_vals[-1]))
-            setattr(self, func_name.lower()+"_f", func)
+            func = interp1d(
+                x_vals, y_vals, bounds_error=False, fill_value=(y_vals[0], y_vals[-1])
+            )
+            setattr(self, func_name.lower() + "_f", func)
 
     def loopk_exogenous(self, k):
         """
@@ -386,12 +403,12 @@ class Capital:
             is False.
 
         """
-
         if alone:
             self.loop0_exogenous()
         # Set initial conditions
         self.ic[0] = self.ici
         self.sc[0] = self.sci
+        self.cuf[0] = 1.0
         # industrial subsector
         self._update_alic(0)
         self._update_icdr(0, 0)
@@ -399,9 +416,6 @@ class Capital:
         self._update_io(0)
         self._update_iopc(0)
         self._update_fioac(0)
-        #added, 2004 update
-        self._update_cio(0)
-        self._update_ciopc(0)
         # service subsector
         self._update_isopc(0)
         self._update_alsc(0)
@@ -452,9 +466,6 @@ class Capital:
         self._update_io(k)
         self._update_iopc(k)
         self._update_fioac(k)
-        #added, 2004 update
-        self._update_cio(k)
-        self._update_ciopc(k)
         # service subsector
         self._update_state_sc(k, j, jk)
         self._update_isopc(k)
@@ -495,22 +506,20 @@ class Capital:
                 self.redo_loop = False
                 if self.verbose:
                     print("go loop", k_)
-                self.loopk_capital(k_-1, k_, k_-1, k_, alone=True)
+                self.loopk_capital(k_ - 1, k_, k_ - 1, k_, alone=True)
 
     @requires(["lufd"], ["luf"], check_after_init=False)
     def _update_lufd(self, k):
         """
         From step k=0 requires: LUF, else nothing
         """
-
-        self.lufd[k] = self.smooth_luf(k, self.lufdt, 1) #2004 update, added init Val in smooth function
+        self.lufd[k] = self.smooth_luf(k, self.lufdt)
 
     @requires(["cuf"], ["lufd"])
     def _update_cuf(self, k):
         """
         From step k requires: LUFD
         """
-        
         self.cuf[k] = self.cuf_f(self.lufd[k])
 
     @requires(["ic"])
@@ -518,23 +527,24 @@ class Capital:
         """
         State variable, requires previous step only
         """
-
-        self.ic[k] = self.ic[jk] + self.dt * (self.icir[jk] - self.icdr[jk])
+        if k == 0:
+            self.ic[k] = self.ici
+        else:
+            self.ic[k] = self.ic[j] + self.dt * (self.icir[jk] - self.icdr[jk])
 
     @requires(["alic"])
     def _update_alic(self, k):
         """
         From step k requires: nothing
         """
-        
-        self.alic[k] = max(self.alic_control(self.time[k]), 0.01)
+        self.alic_control_values[k] = max(self.alic_control(k), 0.01)
+        self.alic[k] = self.alic_control_values[k]
 
     @requires(["icdr"], ["ic", "alic"])
     def _update_icdr(self, k, kl):
         """
         From step k requires: IC ALIC
         """
-        
         self.icdr[kl] = self.ic[k] / self.alic[k]
 
     @requires(["icor"])
@@ -542,69 +552,63 @@ class Capital:
         """
         From step k requires: nothing
         """
-        
-        self.icor[k] = max(self.icor_control(self.time[k]), 0.01)
+        self.icor_control_values[k] = max(self.icor_control(k), 0.01)
+        self.icor[k] = self.icor_control_values[k]
 
     @requires(["io"], ["ic", "fcaor", "cuf", "icor"])
     def _update_io(self, k):
         """
         From step k requires: IC FCAOR CUF ICOR
         """
-        
         self.io[k] = self.ic[k] * (1 - self.fcaor[k]) * self.cuf[k] / self.icor[k]
-        
+
     @requires(["iopc"], ["io", "pop"])
     def _update_iopc(self, k):
         """
         From step k requires: IO POP
         """
-        
         self.iopc[k] = self.io[k] / self.pop[k]
 
-    @requires(["fioacv", "fioacc", "fioac"], ["iopc"])
+    @requires(["fioacv", "fioac"], ["iopc"])
     def _update_fioac(self, k):
         """
         From step k requires: IOPC
         """
-        
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioacc[k] = clip(self.fioac_control(self.time[k]), 0, 1)
-        self.fioac[k] = clip(self.fioacv[k], self.fioacc[k], self.time[k],
-                             self.iet)
+        self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
+        self.fioac[k] = clip(
+            self.fioacv[k], self.fioac_control_values[k], self.time[k], self.iet
+        )
 
     @requires(["sc"])
     def _update_state_sc(self, k, j, jk):
         """
         State variable, requires previous step only
         """
+        if k == 0:
+            self.sc[k] = self.sci
+        else:
+            self.sc[k] = self.sc[j] + self.dt * (self.scir[jk] - self.scdr[jk])
 
-        self.sc[k] = self.sc[j] + self.dt * (self.scir[jk] - self.scdr[jk])
-
-    @requires(["isopc1", "isopc2", "isopc"], ["iopc"])
+    @requires(["isopc"], ["iopc"])
     def _update_isopc(self, k):
         """
         From step k requires: IOPC
         """
-        
-        self.isopc1[k] = self.isopc1_f(self.iopc[k])
-        self.isopc2[k] = self.isopc2_f(self.iopc[k])
-        self.isopc[k] = clip(self.isopc2[k], self.isopc1[k], self.time[k],
-                             self.pyear)
+        self.isopc[k] = self.isopc_control(k) * self.isopc_f(self.iopc[k])
 
     @requires(["alsc"])
     def _update_alsc(self, k):
         """
         From step k requires: nothing
         """
-        
-        self.alsc[k] = max(self.alsc_control(self.time[k]), 0.01)
+        self.alsc[k] = max(self.alsc_control(k), 0.01)
 
     @requires(["scdr"], ["sc", "alsc"])
     def _update_scdr(self, k, kl):
         """
         From step k requires: SC ALSC
         """
-        
         self.scdr[kl] = self.sc[k] / self.alsc[k]
 
     @requires(["scor"])
@@ -612,15 +616,13 @@ class Capital:
         """
         From step k requires: nothing
         """
-        
-        self.scor[k] = clip(self.scor_control(self.time[k]), 0.01, 1)
+        self.scor[k] = clip(self.scor_control(k), 0.01, 1)
 
     @requires(["so"], ["sc", "cuf", "scor"])
     def _update_so(self, k):
         """
         From step k requires: SC CUF SCOR
         """
-        
         self.so[k] = self.sc[k] * self.cuf[k] / self.scor[k]
 
     @requires(["sopc"], ["so", "pop"])
@@ -628,60 +630,36 @@ class Capital:
         """
         From step k requires: SO POP
         """
-        
         self.sopc[k] = self.so[k] / self.pop[k]
 
-    @requires(["fioas1", "fioas2", "fioas"], ["sopc", "isopc"])
+    @requires(["fioas"], ["sopc", "isopc"])
     def _update_fioas(self, k):
         """
         From step k requires: SOPC ISOPC
         """
-        
-        self.fioas1[k] = self.fioas1_f(self.sopc[k] / self.isopc[k])
-        self.fioas2[k] = self.fioas2_f(self.sopc[k] / self.isopc[k])
-        self.fioas[k] = clip(self.fioas2[k], self.fioas1[k], self.time[k],
-                             self.pyear)
-    
-    #added, 2004 update
-    @requires(["cio"],["fioac","io"])
-    def _update_cio(self, k):
-        """
-        From step k requires: fioas, io
-        """
-        
-        self.cio[k] = self.fioac[k] * self.io[k]
-    
-    #added, 2004 update
-    @requires(["ciopc"], ["cio","pop"])
-    def _update_ciopc(self, k):
-        """
-        From step k requires: cio, pop
-        """
-        
-        self.ciopc[k] = self.cio[k] / self.pop[k]
-    
+        self.fioas[k] = self.fioas_control(k) * self.fioas_f(
+            self.sopc[k] / self.isopc[k]
+        )
+
     @requires(["scir"], ["io", "fioas"])
     def _update_scir(self, k, kl):
         """
         From step k requires: IO FIOAS
         """
-        
         self.scir[kl] = self.io[k] * self.fioas[k]
 
-    @requires(["fioaa", "fioas", "fioac"])
+    @requires(["fioai"], ["fioaa", "fioas", "fioac"])
     def _update_fioai(self, k):
         """
         From step k requires: FIOAA FIOAS FIOAC
         """
-
-        self.fioai[k] = (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k])
+        self.fioai[k] = 1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]
 
     @requires(["icir"], ["io", "fioai"])
     def _update_icir(self, k, kl):
         """
         From step k requires: IO FIOAI
         """
-        
         self.icir[kl] = self.io[k] * self.fioai[k]
 
     @requires(["jpicu"], ["iopc"])
@@ -689,7 +667,6 @@ class Capital:
         """
         From step k requires: IOPC
         """
-        
         self.jpicu[k] = self.jpicu_f(self.iopc[k])
 
     @requires(["pjis"], ["ic", "jpicu"])
@@ -697,7 +674,6 @@ class Capital:
         """
         From step k requires: IC JPICU
         """
-        
         self.pjis[k] = self.ic[k] * self.jpicu[k]
 
     @requires(["jpscu"], ["sopc"])
@@ -705,7 +681,6 @@ class Capital:
         """
         From step k requires: SOPC
         """
-        
         self.jpscu[k] = self.jpscu_f(self.sopc[k])
 
     @requires(["pjss"], ["sc", "jpscu"])
@@ -713,7 +688,6 @@ class Capital:
         """
         From step k requires: SC JPSCU
         """
-        
         self.pjss[k] = self.sc[k] * self.jpscu[k]
 
     @requires(["jph"], ["aiph"])
@@ -721,7 +695,6 @@ class Capital:
         """
         From step k requires: AIPH
         """
-        
         self.jph[k] = self.jph_f(self.aiph[k])
 
     @requires(["pjas"], ["jph", "al"])
@@ -729,7 +702,6 @@ class Capital:
         """
         From step k requires: JPH AL
         """
-        
         self.pjas[k] = self.jph[k] * self.al[k]
 
     @requires(["j"], ["pjis", "pjas", "pjss"])
@@ -737,7 +709,6 @@ class Capital:
         """
         From step k requires: PJIS PJAS PJSS
         """
-        
         self.j[k] = self.pjis[k] + self.pjas[k] + self.pjss[k]
 
     @requires(["lf"], ["p2", "p3"])
@@ -745,7 +716,6 @@ class Capital:
         """
         From step k requires: P2 P3
         """
-        
         self.lf[k] = (self.p2[k] + self.p3[k]) * self.lfpf
 
     @requires(["luf"], ["j", "lf"])
@@ -753,5 +723,4 @@ class Capital:
         """
         From step k requires: J LF
         """
-        
         self.luf[k] = self.j[k] / self.lf[k]
