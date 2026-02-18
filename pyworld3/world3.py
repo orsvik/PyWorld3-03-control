@@ -61,6 +61,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
     >>> world3.init_world3_constants()       # choose the model constants.
     >>> world3.init_world3_variables()       # initialize all variables.
     >>> world3.set_world3_table_functions()  # get tables from a json file.
+    >>> world3.set_control_functions()       # initialize control functions.
     >>> world3.set_world3_delay_functions()  # initialize delay functions.
     >>> world3.run_world3()
 
@@ -72,15 +73,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         end year of the simulation [year]. The default is 2100.
     dt : float, optional
         time step of the simulation [year]. The default is 1.
-    pyear : float, optional
-        implementation date of new policies [year]. The default is 1975.
-    pyear_res_tech : float, optional
-        implementation of resource policy 
-    pyear_pp_tech : float, optional
-        implementation of pollution policy
-    iphst : float, optional
-        implementation date of new policy on health service time [year].
-        The default is 1940.
     verbose : bool, optional
         print information for debugging. The default is False.
 
@@ -94,70 +86,128 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
        W. Behrens. *The limits to growth*. New York 102, no. 1972 (1972): 27.
 
     """
-    
-    """
-    j = k - 1
-    kl = k
-    jk = j
-    """
 
-    def __init__(self, year_min=1900, year_max=2100, dt=0.5, pyear=1975, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
-                 iphst=1940, verbose=False):
-        self.iphst = iphst
-        self.pyear = pyear
-        self.pyear_res_tech = pyear_res_tech
-        self.pyear_pp_tech = pyear_pp_tech
-        self.pyear_fcaor = pyear_fcaor 
-        self.pyear_y_tech = pyear_y_tech
+    def __init__(
+        self,
+        year_min=1900,
+        year_max=2200,
+        dt=0.5,
+        verbose=False,
+    ):
+        self.iphst = 1940
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt) + 1
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
-        self.verbose = False
+        self.verbose = verbose
 
-    def init_world3_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
-                              dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
-                              lpd=20, mtfn=12, pet=4000, rlt=30, sad=20, zpgt=4000,
-                              
-                              ici=2.1e11, sci=1.44e11, iet=4000,
-                              iopcd=400, lfpf=0.75, lufdt=2, icor1=3, icor2=3,
-                              scor1=1, scor2=1, alic1=14, alic2=14,
-                              alsc1=20, alsc2=20, fioac1=0.43, fioac2=0.43,
-                              
-                              ali=0.9e9, pali=2.3e9, lfh=0.7,
-                              palt=3.2e9, pl=0.1, alai1=2, alai2=2,
-                              io70=7.9e11, lyf1=1, sd=0.07,
-                              uili=8.2e6, alln=1000, uildt=10,
-                              lferti=600, ilf=600, fspd=2, sfpc = 230, dfr = 2,
-                              
-                              pp19 = 2.5e7, apct = 4000.0,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
-                              ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0
-                              ,ahl70 = 1.5 ,pp70 = 1.36e8, dppolx = 1.2 ,tdt = 20.0, ppgf1 = 1.0,
-                              
-                              nri=1e12, nruf1=1, druf = 4.8e9
-                              ):    
-        
+    def set_world3_control(self, **control_functions):
+        self.set_capital_control(**control_functions)
+        self.set_agriculture_control(**control_functions)
+        self.set_pollution_control(**control_functions)
+        self.set_population_control(**control_functions)
+        self.set_resource_control(**control_functions)
+
+    def init_world3_constants(
+        self,
+        p1i=65e7,
+        p2i=70e7,
+        p3i=19e7,
+        p4i=6e7,
+        dcfsn=4,
+        fcest=4000,
+        hsid=20,
+        ieat=3,
+        len=28,
+        lpd=20,
+        mtfn=12,
+        pet=4000,
+        rlt=30,
+        sad=20,
+        zpgt=4000,
+        ici=2.1e11,
+        sci=1.44e11,
+        iet=4000,
+        iopcd=400,
+        lfpf=0.75,
+        lufdt=2,
+        ali=0.9e9,
+        pali=2.3e9,
+        lfh=0.7,
+        palt=3.2e9,
+        pl=0.1,
+        io70=7.9e11,
+        sd=0.07,
+        uili=8.2e6,
+        alln=6000,
+        uildt=10,
+        lferti=600,
+        ilf=600,
+        fspd=2,
+        sfpc=230,
+        ppoli=2.5e7,
+        ppol70=1.36e8,
+        ahl70=1.5,
+        amti=1,
+        imti=10,
+        imef=0.1,
+        fipm=0.001,
+        frpm=0.02,
+        nri=1e12,
+    ):
         """
         Initialize the constant parameters of the 5 sectors. Constants and
         their unit are defined in the documentation of the corresponding
         sectors.
-        #changed alln and dcfsn, 2004 update
+
         """
-        self.init_population_constants(p1i, p2i, p3i, p4i, dcfsn, fcest, hsid,
-                                       ieat, len, lpd, mtfn, pet, rlt, sad,
-                                       zpgt)
-        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt, icor1,
-                                    icor2, scor1, scor2, alic1, alic2, alsc1,
-                                    alsc2, fioac1, fioac2)
-        self.init_agriculture_constants(ali, pali, lfh, palt, pl, alai1, alai2,
-                                        io70, lyf1, sd, uili, alln,
-                                        uildt, lferti, ilf, fspd, sfpc, dfr)
-        self.init_pollution_constants(pp19 , apct , io70 ,imef ,imti ,frpm
-                                      ,ghup ,faipm ,amti ,pptd
-                                      ,ahl70 ,pp70 , dppolx, tdt, ppgf1)
-        self.init_resource_constants(nri, nruf1, druf, tdt)
+        self.init_population_constants(
+            p1i,
+            p2i,
+            p3i,
+            p4i,
+            dcfsn,
+            fcest,
+            hsid,
+            ieat,
+            len,
+            lpd,
+            mtfn,
+            pet,
+            rlt,
+            sad,
+            zpgt,
+        )
+        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt)
+        self.init_agriculture_constants(
+            ali,
+            pali,
+            lfh,
+            palt,
+            pl,
+            io70,
+            sd,
+            uili,
+            alln,
+            uildt,
+            lferti,
+            ilf,
+            fspd,
+            sfpc,
+        )
+        self.init_pollution_constants(
+            ppoli,
+            ppol70,
+            ahl70,
+            amti,
+            imti,
+            imef,
+            fipm,
+            frpm,
+        )
+        self.init_resource_constants(nri)
 
     def init_world3_variables(self):
         """
@@ -225,36 +275,33 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self._run_world3_fast()
         else:
             self._run_world3()
-            
 
     def _run_world3(self):
         """
         Run an unsorted sequence of updates of the 5 sectors, and reschedules
         each loop computation until all variables are computed.
-        """
 
-           
+        """
         self.redo_loop = True
-        while self.redo_loop == True:
+        while self.redo_loop:
             self.redo_loop = False
             self.loop0_population()
             self.loop0_capital()
             self.loop0_agriculture()
             self.loop0_pollution()
             self.loop0_resource()
-           
-        self.verbose = False
+
         for k_ in range(1, self.n):
             self.redo_loop = True
             while self.redo_loop:
                 self.redo_loop = False
                 if self.verbose:
                     print("go loop", k_)
-                self.loopk_population(k_-1, k_, k_-1, k_)
-                self.loopk_capital(k_-1, k_, k_-1, k_)
-                self.loopk_agriculture(k_-1, k_, k_-1, k_)
-                self.loopk_pollution(k_-1, k_, k_-1, k_)
-                self.loopk_resource(k_-1, k_, k_-1, k_)
+                self.loopk_population(k_ - 1, k_, k_ - 1, k_)
+                self.loopk_capital(k_ - 1, k_, k_ - 1, k_)
+                self.loopk_agriculture(k_ - 1, k_, k_ - 1, k_)
+                self.loopk_pollution(k_ - 1, k_, k_ - 1, k_)
+                self.loopk_resource(k_ - 1, k_, k_ - 1, k_)
 
     def _run_world3_fast(self):
         """
@@ -274,15 +321,12 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         for k_ in range(1, self.n):
             if self.verbose:
                 print("go loop", k_)
-            self._loopk_world3_fast(k_-1, k_, k_-1, k_)
+            self._loopk_world3_fast(k_ - 1, k_, k_ - 1, k_)  # sorted updates
 
-    def _loopk_world3_fast(self, j, k, jk, kl): #2004 update: function calls have to be reworked
+    def _loopk_world3_fast(self, j, k, jk, kl):
         """
         Run a sorted sequence to update one loop of World3 with
         no checking and no rescheduling [unsafe].
-        
-        i have to add the new functions
-        
 
         """
         self._update_state_p1(k, j, jk)
@@ -423,24 +467,27 @@ def hello_world3():
     """
     from .utils import plot_world_variables
     from matplotlib.pyplot import rcParams, show
-    params = {'lines.linewidth': '3'}
+
+    params = {"lines.linewidth": "3"}
     rcParams.update(params)
 
     world3 = World3()
+    world3.set_world3_control()
     world3.init_world3_constants()
     world3.init_world3_variables()
     world3.set_world3_table_functions()
     world3.set_world3_delay_functions()
     world3.run_world3(fast=True)
 
-    plot_world_variables(world3.time,
-                         [world3.nrfr, world3.iopc, world3.fpc, world3.pop,
-                          world3.ppolx],
-                         ["NRFR", "IOPC", "FPC", "POP", "PPOLX"],
-                         [[0, 1], [0, 1e3], [0, 1e3], [0, 16e9], [0, 32]],
-                         figsize=(7, 5),
-                         grid=1,
-                         title="World3 reference run")
+    plot_world_variables(
+        world3.time,
+        [world3.nrfr, world3.iopc, world3.fpc, world3.pop, world3.ppolx],
+        ["NRFR", "IOPC", "FPC", "POP", "PPOLX"],
+        [[0, 1], [0, 1e3], [0, 1e3], [0, 16e9], [0, 32]],
+        figsize=(7, 5),
+        grid=1,
+        title="World3 standard run",
+    )
     show()
 
 

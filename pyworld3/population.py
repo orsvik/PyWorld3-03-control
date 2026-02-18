@@ -32,15 +32,20 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL license and that you accept its terms.
 
+
+# Control functions first implemented by Matthieu Barreau (mBarreau)
+# Modifications by orsvik
+
+
 import os
 import json
 
 from scipy.interpolate import interp1d
 import numpy as np
-import math
+import inspect
 
-from .specials import Dlinf3, Smooth, clip, ramp, Delay3
-from .utils import requires
+from .specials import Dlinf3, Smooth, clip, ramp
+from .utils import requires, _create_control_function
 
 
 class Population:
@@ -54,8 +59,9 @@ class Population:
     which should be provided by the other sectors. Start from the following
     example:
 
-    >>> pop = pop.Population()
+    >>> pop = Population()
     >>> pop.set_population_table_functions()
+    >>> pop.set_control_functions()
     >>> pop.init_population_constants()
     >>> pop.init_population_variables()
     >>> pop.init_exogenous_inputs()
@@ -110,6 +116,10 @@ class Population:
         time when desired family size equals 2 children [year]. The default is
         4000.
 
+    **Control signals**
+    lmhs_control : function, optional
+        fraction of normal lmhs used, control function with argument time [years]. The default is 1.
+
     **Population sector**
 
     p1 : numpy.ndarray
@@ -158,9 +168,9 @@ class Population:
     lmhs : numpy.ndarray
         lifetime multiplier from health services [].
     lmhs1 : numpy.ndarray
-        lmhs, value before time=pyear [].
+        lmhs, value before time=iphst [].
     lmhs2 : numpy.ndarray
-        lmhs, value after time=pyear [].
+        lmhs, value after time=iphst [].
     lmp : numpy.ndarray
         lifetime multiplier from persistent pollution [].
     m1 : numpy.ndarray
@@ -215,23 +225,10 @@ class Population:
     tf : numpy.ndarray
         total fertility [].
 
-    2004 update, added HWI:
-    lei : numpy.ndarray
-        Life Expectancy Index [].
-    gdpc : numpy.ndarray
-        GDP per Capita [].
-    gdpi : numpy.ndarray
-        GDP Index [].
-    ei : numpy.ndarray
-        Education Index [].
-    hwi : numpy.ndarray
-        Human Welfare Index [].
-        
     """
 
-    def __init__(self, year_min=1900, year_max=1975, dt=1, iphst=1940,
-                 verbose=False):
-        self.iphst = iphst
+    def __init__(self, year_min=1900, year_max=1975, dt=1, verbose=False):
+        self.iphst = 1940
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
@@ -240,10 +237,31 @@ class Population:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def init_population_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
-                                  dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
-                                  lpd=20, mtfn=12, pet=4000, rlt=30, sad=20,
-                                  zpgt=4000):
+    def set_population_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {"lmhs_control": lambda _: 1}
+        _create_control_function(self, default_control_functions, control_functions)
+
+    def init_population_constants(
+        self,
+        p1i=65e7,
+        p2i=70e7,
+        p3i=19e7,
+        p4i=6e7,
+        dcfsn=4,
+        fcest=4000,
+        hsid=20,
+        ieat=3,
+        len=28,
+        lpd=20,
+        mtfn=12,
+        pet=4000,
+        rlt=30,
+        sad=20,
+        zpgt=4000,
+    ):
         """
         Initialize the constant parameters of the population sector. Constants
         and their unit are documented above at the class level.
@@ -323,13 +341,6 @@ class Population:
         self.fcapc = np.full((self.n,), np.nan)
         self.fcfpc = np.full((self.n,), np.nan)
         self.fsafc = np.full((self.n,), np.nan)
-        
-        #2004 update, added HWI
-        self.lei = np.full((self.n,), np.nan)
-        self.gdpc = np.full((self.n,), np.nan)
-        self.gdpi = np.full((self.n,), np.nan)
-        self.ei = np.full((self.n,), np.nan)
-        self.hwi = np.full((self.n,), np.nan)
 
     def set_population_delay_functions(self, method="euler"):
         """
@@ -347,15 +358,17 @@ class Population:
         """
         var_dlinf3 = ["LE", "IOPC", "FCAPC"]
         for var_ in var_dlinf3:
-            func_delay = Dlinf3(getattr(self, var_.lower()),
-                                self.dt, self.time, method=method)
-            setattr(self, "dlinf3_"+var_.lower(), func_delay)
+            func_delay = Dlinf3(
+                getattr(self, var_.lower()), self.dt, self.time, method=method
+            )
+            setattr(self, "dlinf3_" + var_.lower(), func_delay)
 
         var_smooth = ["HSAPC", "IOPC"]
         for var_ in var_smooth:
-            func_delay = Smooth(getattr(self, var_.lower()),
-                                self.dt, self.time, method=method)
-            setattr(self, "smooth_"+var_.lower(), func_delay)
+            func_delay = Smooth(
+                getattr(self, var_.lower()), self.dt, self.time, method=method
+            )
+            setattr(self, "smooth_" + var_.lower(), func_delay)
 
     def set_population_table_functions(self, json_file=None):
         """
@@ -375,19 +388,36 @@ class Population:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["M1", "M2", "M3", "M4",
-                      "LMF", "HSAPC", "LMHS1", "LMHS2",
-                      "FPU", "CMI", "LMP", "FM", "CMPLE",
-                      "SFSN", "FRSN", "FCE_TOCLIP", "FSAFC", "LEI", "GDPC", "EI"]
+        func_names = [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "LMF",
+            "HSAPC",
+            "LMHS1",
+            "LMHS2",
+            "FPU",
+            "CMI",
+            "LMP",
+            "FM",
+            "CMPLE",
+            "SFSN",
+            "FRSN",
+            "FCE_TOCLIP",
+            "FSAFC",
+        ]
 
         for func_name in func_names:
             for table in tables:
                 if table["y.name"] == func_name:
-                    func = interp1d(table["x.values"], table["y.values"],
-                                    bounds_error=False,
-                                    fill_value=(table["y.values"][0],
-                                                table["y.values"][-1]))
-                    setattr(self, func_name.lower()+"_f", func)
+                    func = interp1d(
+                        table["x.values"],
+                        table["y.values"],
+                        bounds_error=False,
+                        fill_value=(table["y.values"][0], table["y.values"][-1]),
+                    )
+                    setattr(self, func_name.lower() + "_f", func)
 
     def init_exogenous_inputs(self):
         """
@@ -440,29 +470,29 @@ class Population:
         Run a sorted sequence to update one loop of the exogenous parameters.
         `@requires` decorator checks that all dependencies are computed
         previously.
+
         """
-        
         # industrial output
-        self.io11[k] = .7e11*np.exp((self.time[k] - self.year_min)*.037)
+        self.io11[k] = 0.7e11 * np.exp((self.time[k] - self.year_min) * 0.037)
         self.io12[k] = self.pop[k] * self.cio
         self.io1[k] = clip(self.io12[k], self.io11[k], self.time[k], self.lt2)
-        self.io2[k] = .7e11 * np.exp(self.lt * .037)
+        self.io2[k] = 0.7e11 * np.exp(self.lt * 0.037)
         self.io[k] = clip(self.io2[k], self.io1[k], self.time[k], self.lt)
         self.iopc[k] = self.io[k] / self.pop[k]
         # index of persistent pollution
         self.ppolx[k] = 1 + ramp(self.ps, self.pt, self.time[k])
         # service output
-        self.so11[k] = 1.5e11 * np.exp((self.time[k] - self.year_min) * .030)
+        self.so11[k] = 1.5e11 * np.exp((self.time[k] - self.year_min) * 0.030)
         self.so12[k] = self.pop[k] * self.cso
         self.so1[k] = clip(self.so12[k], self.so11[k], self.time[k], self.lt2)
-        self.so2[k] = 1.5e11 * np.exp(self.lt * .030)
+        self.so2[k] = 1.5e11 * np.exp(self.lt * 0.030)
         self.so[k] = clip(self.so2[k], self.so1[k], self.time[k], self.lt)
         self.sopc[k] = self.so[k] / self.pop[k]
         # food
-        self.f11[k] = 4e11 * np.exp((self.time[k] - self.year_min) * .020)
+        self.f11[k] = 4e11 * np.exp((self.time[k] - self.year_min) * 0.020)
         self.f12[k] = self.pop[k] * self.cfood
         self.f1[k] = clip(self.f12[k], self.f11[k], self.time[k], self.lt2)
-        self.f2[k] = 4e11 * np.exp(self.lt * .020)
+        self.f2[k] = 4e11 * np.exp(self.lt * 0.020)
         self.f[k] = clip(self.f2[k], self.f1[k], self.time[k], self.lt)
         self.fpc[k] = self.f[k] / self.pop[k]
 
@@ -484,15 +514,13 @@ class Population:
             is False.
 
         """
-
-        # Set initial conditions    
+        # Set initial conditions
         self.p1[0] = self.p1i
         self.p2[0] = self.p2i
         self.p3[0] = self.p3i
         self.p4[0] = self.p4i
         self.frsn[0] = 0.82
-        self.pop[0] = self.p1[0] + self.p2[0] + self.p3[0] + self.p4[0] 
-        
+        self.pop[0] = self.p1[0] + self.p2[0] + self.p3[0] + self.p4[0]
         if alone:
             self.loop0_exogenous()
         # Death rate subsector
@@ -519,7 +547,7 @@ class Population:
         self._update_d2(0, 0)
         self._update_d3(0, 0)
         self._update_d4(0, 0)
-        self._update_d(0, 0)   # replace (0, -1) by (0, 0) at init
+        self._update_d(0, 0)  # replace (0, -1) by (0, 0) at init
         self._update_cdr(0)
         # Birth rate subsector
         # connect World3 sectors to Population
@@ -546,14 +574,7 @@ class Population:
         self._update_b(0, 0)
         # recompute supplementary initial conditions
         self._update_frsn(0)
-        
-        #2004 update added:
-        self._update_lei(0)
-        self._update_gdpc(0)
-        self._update_gdpi(0)
-        self._update_ei(0)
-        self._update_hwi(0)
-                         
+
     def loopk_population(self, j, k, jk, kl, alone=False):
         """
         Run a sequence to update one loop of the population sector.
@@ -570,7 +591,6 @@ class Population:
         self._update_state_p3(k, j, jk)
         self._update_state_p4(k, j, jk)
         self._update_pop(k)
-        
         if alone:
             self.loopk_exogenous(k)
         # Death rate subsector
@@ -621,13 +641,6 @@ class Population:
         self._update_tf(k)
         self._update_cbr(k, jk)
         self._update_b(k, kl)
-        
-        #2004 update added:
-        self._update_lei(k)
-        self._update_gdpc(k)
-        self._update_gdpi(k)
-        self._update_ei(k)
-        self._update_hwi(k)
 
     def run_population(self):
         """
@@ -645,46 +658,45 @@ class Population:
                 self.redo_loop = False
                 if self.verbose:
                     print("go loop", k_)
-                self.loopk_population(k_-1, k_, k_-1, k_, alone=True)
+                self.loopk_population(k_ - 1, k_, k_ - 1, k_, alone=True)
 
     @requires(["p1"])
     def _update_state_p1(self, k, j, jk):
         """
         State variable, requires previous step only
         """
-
-        self.p1[k] = self.p1[j] + self.dt*(self.b[jk] - self.d1[jk] - self.mat1[jk])
+        self.p1[k] = self.p1[j] + self.dt * (self.b[jk] - self.d1[jk] - self.mat1[jk])
 
     @requires(["p2"])
     def _update_state_p2(self, k, j, jk):
         """
         State variable, requires previous step only
         """
-
-        self.p2[k] = self.p2[j] + self.dt*(self.mat1[jk] - self.d2[jk] - self.mat2[jk])
+        self.p2[k] = self.p2[j] + self.dt * (
+            self.mat1[jk] - self.d2[jk] - self.mat2[jk]
+        )
 
     @requires(["p3"])
     def _update_state_p3(self, k, j, jk):
         """
         State variable, requires previous step only
         """
-
-        self.p3[k] = self.p3[j] + self.dt*(self.mat2[jk] - self.d3[jk] - self.mat3[jk])
+        self.p3[k] = self.p3[j] + self.dt * (
+            self.mat2[jk] - self.d3[jk] - self.mat3[jk]
+        )
 
     @requires(["p4"])
     def _update_state_p4(self, k, j, jk):
         """
         State variable, requires previous step only
         """
-
-        self.p4[k] = self.p4[j] + self.dt*(self.mat3[jk] - self.d4[jk])
+        self.p4[k] = self.p4[j] + self.dt * (self.mat3[jk] - self.d4[jk])
 
     @requires(["pop"], ["p1", "p2", "p3", "p4"])
     def _update_pop(self, k):
         """
         From step k=0 requires: P1 P2 P3 P4
         """
-
         self.pop[k] = self.p1[k] + self.p2[k] + self.p3[k] + self.p4[k]
 
     @requires(["fpu"], ["pop"])
@@ -692,7 +704,6 @@ class Population:
         """
         From step k requires: POP
         """
-        
         self.fpu[k] = self.fpu_f(self.pop[k])
 
     @requires(["lmp"], ["ppolx"])
@@ -700,7 +711,6 @@ class Population:
         """
         From step k requires: PPOLX
         """
-        
         self.lmp[k] = self.lmp_f(self.ppolx[k])  # Pollution >
 
     @requires(["lmf"], ["fpc"])
@@ -708,16 +718,13 @@ class Population:
         """
         From step k requires: FPC
         """
-        
-        self.lmf[k] = self.lmf_f(self.fpc[k] / self.sfpc )  # Food >
-        #changed table function, 2004 update
+        self.lmf[k] = self.lmf_f(self.fpc[k] / self.sfpc)  # Food >
 
     @requires(["cmi"], ["iopc"])
     def _update_cmi(self, k):
         """
         From step k requires: IOPC
         """
-        
         self.cmi[k] = self.cmi_f(self.iopc[k])  # Industrial Output >
 
     @requires(["hsapc"], ["sopc"])
@@ -725,7 +732,6 @@ class Population:
         """
         From step k requires: SOPC
         """
-        
         self.hsapc[k] = self.hsapc_f(self.sopc[k])  # Service Output >
 
     @requires(["ehspc"], ["hsapc"], check_after_init=False)
@@ -733,34 +739,32 @@ class Population:
         """
         From step k=0 requires: HSAPC, else nothing
         """
-        
-        self.ehspc[k] = self.smooth_hsapc(k, self.hsid, self.hsapc[0]) #2004 update, added init Val
-        
+        self.ehspc[k] = self.smooth_hsapc(k, self.hsid)
+
     @requires(["lmhs1", "lmhs2", "lmhs"], ["ehspc"])
     def _update_lmhs(self, k):
         """
         From step k requires: EHSPC
         """
-        
-        self.lmhs1[k] = self.lmhs1_f(self.ehspc[k]) #changed json file, 2004 update
-        self.lmhs2[k] = self.lmhs2_f(self.ehspc[k]) #changed json file, 2004 update
-        self.lmhs[k] = clip(self.lmhs2[k], self.lmhs1[k],
-                            self.time[k], self.iphst)
+        self.lmhs1[k] = self.lmhs1_f(self.ehspc[k])
+        self.lmhs2[k] = self.lmhs2_f(self.ehspc[k])
+        self.lmhs_control_values[k] = max(0, self.lmhs_control(k))
+        self.lmhs[k] = self.lmhs_control_values[k] * clip(
+            self.lmhs2[k], self.lmhs1[k], self.time[k], self.iphst
+        )
 
     @requires(["lmc"], ["cmi", "fpu"])
     def _update_lmc(self, k):
         """
         From step k requires: CMI FPU
         """
-        
-        self.lmc[k] = 1 - self.cmi[k]*self.fpu[k]
+        self.lmc[k] = 1 - self.cmi[k] * self.fpu[k]
 
     @requires(["m1"], ["le"])
     def _update_m1(self, k):
         """
         From step k requires: LE
         """
-        
         self.m1[k] = self.m1_f(self.le[k])
 
     @requires(["m2"], ["le"])
@@ -768,7 +772,6 @@ class Population:
         """
         From step k requires: LE
         """
-        
         self.m2[k] = self.m2_f(self.le[k])
 
     @requires(["m3"], ["le"])
@@ -776,7 +779,6 @@ class Population:
         """
         From step k requires: LE
         """
-        
         self.m3[k] = self.m3_f(self.le[k])
 
     @requires(["m4"], ["le"])
@@ -784,7 +786,6 @@ class Population:
         """
         From step k requires: LE
         """
-        
         self.m4[k] = self.m4_f(self.le[k])
 
     @requires(["le"], ["lmf", "lmhs", "lmp", "lmc"])
@@ -792,7 +793,6 @@ class Population:
         """
         From step k requires: LMF LMHS LMP LMC
         """
-        
         self.le[k] = self.len * self.lmf[k] * self.lmhs[k] * self.lmp[k] * self.lmc[k]
 
     @requires(["mat1"], ["p1", "m1"])
@@ -800,7 +800,6 @@ class Population:
         """
         From step k requires: P1 M1
         """
-        
         self.mat1[kl] = self.p1[k] * (1 - self.m1[k]) / 15
 
     @requires(["mat2"], ["p2", "m2"])
@@ -808,7 +807,6 @@ class Population:
         """
         From step k requires: P2 M2
         """
-        
         self.mat2[kl] = self.p2[k] * (1 - self.m2[k]) / 30
 
     @requires(["mat3"], ["p3", "m3"])
@@ -816,7 +814,6 @@ class Population:
         """
         From step k requires: P3 M3
         """
-        
         self.mat3[kl] = self.p3[k] * (1 - self.m3[k]) / 20
 
     @requires(["d1"], ["p1", "m1"])
@@ -824,7 +821,6 @@ class Population:
         """
         From step k requires: P1 M1
         """
-        
         self.d1[kl] = self.p1[k] * self.m1[k]
 
     @requires(["d2"], ["p2", "m2"])
@@ -832,7 +828,6 @@ class Population:
         """
         From step k requires: P2 M2
         """
-        
         self.d2[kl] = self.p2[k] * self.m2[k]
 
     @requires(["d3"], ["p3", "m3"])
@@ -840,7 +835,6 @@ class Population:
         """
         From step k requires: P3 M3
         """
-        
         self.d3[kl] = self.p3[k] * self.m3[k]
 
     @requires(["d4"], ["p4", "m4"])
@@ -848,7 +842,6 @@ class Population:
         """
         From step k requires: P4 M4
         """
-        
         self.d4[kl] = self.p4[k] * self.m4[k]
 
     @requires(["d"])
@@ -856,15 +849,13 @@ class Population:
         """
         From step k requires: nothing
         """
-        
-        self.d[k] = self.d1[jk] + self.d2[jk] + self.d3[jk] + self.d4[jk] 
+        self.d[k] = self.d1[jk] + self.d2[jk] + self.d3[jk] + self.d4[jk]
 
     @requires(["cdr"], ["d", "pop"])
     def _update_cdr(self, k):
         """
         From step k requires: D POP
         """
-        
         self.cdr[k] = 1000 * self.d[k] / self.pop[k]
 
     @requires(["aiopc"], ["iopc"], check_after_init=False)
@@ -872,15 +863,13 @@ class Population:
         """
         From step k=0 requires: IOPC, else nothing
         """
-        
-        self.aiopc[k] = self.smooth_iopc(k, self.ieat, self.iopc[0]) #2004 update, added init Val
+        self.aiopc[k] = self.smooth_iopc(k, self.ieat)
 
     @requires(["diopc"], ["iopc"], check_after_init=False)
     def _update_diopc(self, k):
         """
         From step k=0 requires: IOPC, else nothing
         """
-        
         self.diopc[k] = self.dlinf3_iopc(k, self.sad)
 
     @requires(["fie"], ["iopc", "aiopc"])
@@ -888,7 +877,6 @@ class Population:
         """
         From step k requires: IOPC AIOPC
         """
-        
         self.fie[k] = (self.iopc[k] - self.aiopc[k]) / self.aiopc[k]
 
     @requires(["sfsn"], ["diopc"])
@@ -896,15 +884,13 @@ class Population:
         """
         From step k requires: DIOPC
         """
-        
-        self.sfsn[k] = self.sfsn_f(self.diopc[k]) #update 2004, changed json file 
+        self.sfsn[k] = self.sfsn_f(self.diopc[k])
 
     @requires(["frsn"], ["fie"])
     def _update_frsn(self, k):
         """
         From step k requires: FIE
         """
-
         self.frsn[k] = self.frsn_f(self.fie[k])
 
     @requires(["dcfs"], ["frsn", "sfsn"])
@@ -912,15 +898,15 @@ class Population:
         """
         From step k requires: FRSN SFSN
         """
-        
-        self.dcfs[k] = clip(2.0, self.dcfsn*self.frsn[k]*self.sfsn[k],self.time[k], self.zpgt)
+        self.dcfs[k] = clip(
+            2.0, self.dcfsn * self.frsn[k] * self.sfsn[k], self.time[k], self.zpgt
+        )
 
     @requires(["ple"], ["le"], check_after_init=False)
     def _update_ple(self, k):
         """
         From step k=0 requires: LE, else nothing
         """
-
         self.ple[k] = self.dlinf3_le(k, self.lpd)
 
     @requires(["cmple"], ["ple"])
@@ -928,7 +914,6 @@ class Population:
         """
         From step k requires: PLE
         """
-        
         self.cmple[k] = self.cmple_f(self.ple[k])
 
     @requires(["dtf"], ["dcfs", "cmple"])
@@ -936,7 +921,6 @@ class Population:
         """
         From step k requires: DCFS CMPLE
         """
-        
         self.dtf[k] = self.dcfs[k] * self.cmple[k]
 
     @requires(["fm"], ["le"])
@@ -944,7 +928,6 @@ class Population:
         """
         From step k requires: LE
         """
-        
         self.fm[k] = self.fm_f(self.le[k])
 
     @requires(["mtf"], ["fm"])
@@ -952,7 +935,6 @@ class Population:
         """
         From step k requires: FM
         """
-        
         self.mtf[k] = self.mtfn * self.fm[k]
 
     @requires(["nfc"], ["mtf", "dtf"])
@@ -960,7 +942,6 @@ class Population:
         """
         From step k requires: MTF DTF
         """
-        
         self.nfc[k] = self.mtf[k] / self.dtf[k] - 1
 
     @requires(["fsafc"], ["nfc"])
@@ -968,7 +949,6 @@ class Population:
         """
         From step k requires: NFC
         """
-        
         self.fsafc[k] = self.fsafc_f(self.nfc[k])
 
     @requires(["fcapc"], ["fsafc", "sopc"])
@@ -976,7 +956,6 @@ class Population:
         """
         From step k requires: FSAFC SOPC
         """
-        
         self.fcapc[k] = self.fsafc[k] * self.sopc[k]  # Service Output >
 
     @requires(["fcfpc"], ["fcapc"], check_after_init=False)
@@ -984,7 +963,6 @@ class Population:
         """
         From step k=0 requires: FCAPC, else nothing
         """
-        
         self.fcfpc[k] = self.dlinf3_fcapc(k, self.hsid)
 
     @requires(["fce"], ["fcfpc"])
@@ -992,23 +970,24 @@ class Population:
         """
         From step k requires: FCFPC
         """
-        
-        self.fce[k] = clip(1.0, self.fce_toclip_f(self.fcfpc[k]), self.time[k], self.fcest)
+        self.fce[k] = clip(
+            1.0, self.fce_toclip_f(self.fcfpc[k]), self.time[k], self.fcest
+        )
 
     @requires(["tf"], ["mtf", "fce", "dtf"])
     def _update_tf(self, k):
         """
         From step k requires: MTF FCE DTF
         """
-        
-        self.tf[k] = np.minimum(self.mtf[k], (self.mtf[k]*(1-self.fce[k]) + self.dtf[k]*self.fce[k]))
+        self.tf[k] = np.minimum(
+            self.mtf[k], (self.mtf[k] * (1 - self.fce[k]) + self.dtf[k] * self.fce[k])
+        )
 
     @requires(["cbr"], ["pop"])
     def _update_cbr(self, k, jk):
         """
         From step k requires: POP
         """
-        
         self.cbr[k] = 1000 * self.b[jk] / self.pop[k]
 
     @requires(["b"], ["d", "p2", "tf"])
@@ -1016,49 +995,6 @@ class Population:
         """
         From step k requires: D P2 TF
         """
-        
-        self.b[kl] = clip(self.d[k],
-                          self.tf[k] * self.p2[k] * 0.5 / self.rlt,
-                          self.time[k], self.pet)
-    
-    #update 2004, added:
-    @requires (["lei"],["le"])
-    def _update_lei (self, k):
-        """
-        From step k requires: LE
-        """
-        
-        self.lei[k] = self.lei_f(self.le[k])
-    
-    @requires (["gdpc"],["iopc"])    
-    def _update_gdpc (self, k):
-        """
-        From step k requires: iopc
-        """
-        
-        self.gdpc[k] = self.gdpc_f(self.iopc[k])
-    
-    @requires (["gdpi"],["gdpc"])    
-    def _update_gdpi (self, k):
-        """
-        From step k requires: GDPC
-        """
-        
-        self.gdpi[k] = (math.log(self.gdpc[k])-math.log(24))/(math.log(9508)-math.log(24))
-        
-    @requires (["ei"],["gdpc"])    
-    def _update_ei (self, k):
-        """
-        From step k requires: gdpc
-        """
-        
-        self.ei[k] = self.ei_f(self.gdpc[k])
-    
-    @requires(["hwi"],["ei", "lei", "gdpi"])    
-    def _update_hwi (self, k):
-        """
-        From step k requires: lei, ei, gdpi
-        """
-        
-        self.hwi[k] = (self.lei[k]+self.ei[k]+self.gdpi[k])/3
-    
+        self.b[kl] = clip(
+            self.d[k], self.tf[k] * self.p2[k] * 0.5 / self.rlt, self.time[k], self.pet
+        )
