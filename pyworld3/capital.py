@@ -92,10 +92,12 @@ class Capital:
         alsc, value before time=pyear [years]. The default is 20.
     alsc2 : float, optional
         alsc, value after time=pyear [years]. The default is 20.
-    fioac1 : float, optional
-        fioac, value before time=pyear []. The default is 0.43.
-    fioac2 : float, optional
-        fioac, value after time=pyear []. The default is 0.43.
+
+    **Control signals** (added in update)
+    fioac_control : function, optional
+        fioac, control value with argument time [years]. The default is 0.43.
+    isopc_control : function, optional
+        fraction of normal isopc used, control function with argument time [years]. The default is 1.0
 
     **Industrial subsector**
 
@@ -144,10 +146,6 @@ class Capital:
         average lifetime of service capital [years].
     isopc : numpy.ndarray
         indicated service output per capita [dollars/person-year].
-    isopc1 : numpy.ndarray
-        isopc, value before time=pyear [dollars/person-year].
-    isopc2 : numpy.ndarray
-        isopc, value after time=pyear [dollars/person-year].
     fioas : numpy.ndarray
         fraction of industrial output allocated to services [].
     fioas1 : numpy.ndarray
@@ -193,10 +191,20 @@ class Capital:
         self.time = np.arange(self.year_min, self.year_max, self.dt)
         self.verbose = False
 
+    def set_capital_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+            "fioac_control": lambda _: 0.43,
+            "isopc_control": lambda _: 1.0,
+        }
+        _create_control_function(self, default_control_functions, control_functions)
+
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
                                iopcd=400, lfpf=0.75, lufdt=2, icor1=3, icor2=3,
                                scor1=1, scor2=1, alic1=14, alic2=14,
-                               alsc1=20, alsc2=20, fioac1=0.43, fioac2=0.43):
+                               alsc1=20, alsc2=20, fioac_control= lambda _ : 0.43):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -216,8 +224,7 @@ class Capital:
         self.alic2 = alic2
         self.alsc1 = alsc1
         self.alsc2 = alsc2
-        self.fioac1 = fioac1
-        self.fioac2 = fioac2
+        self.fioac_control = fioac_control
 
     def init_capital_variables(self):
         """
@@ -573,8 +580,7 @@ class Capital:
         """
         
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioacc[k] = clip(self.fioac2, self.fioac1, self.time[k],
-                              self.pyear)
+        self.fioacc[k] = clip(self.fioac_control(self.time[k]), 0, 1)
         self.fioac[k] = clip(self.fioacv[k], self.fioacc[k], self.time[k],
                              self.iet)
 

@@ -1,4 +1,4 @@
-import pyworld3.pollution_update as po
+import pyworld3.pollution as po
 from pyworld3.utils import plot_world_variables
 
 

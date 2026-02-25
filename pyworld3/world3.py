@@ -101,7 +101,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
     jk = j
     """
 
-    def __init__(self, year_min=1900, year_max=2100, dt=0.5, pyear=1975, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
+    def __init__(self, year_min=1900, year_max=2200, dt=0.5, pyear=2026, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
                  iphst=1940, verbose=False):
         self.iphst = iphst
         self.pyear = pyear
@@ -124,7 +124,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                               ici=2.1e11, sci=1.44e11, iet=4000,
                               iopcd=400, lfpf=0.75, lufdt=2, icor1=3, icor2=3,
                               scor1=1, scor2=1, alic1=14, alic2=14,
-                              alsc1=20, alsc2=20, fioac1=0.43, fioac2=0.43,
+                              alsc1=20, alsc2=20,
+                              fioac_control=lambda _ : 0.43,
                               
                               ali=0.9e9, pali=2.3e9, lfh=0.7,
                               palt=3.2e9, pl=0.1, alai1=2, alai2=2,
@@ -150,7 +151,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                                        zpgt)
         self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt, icor1,
                                     icor2, scor1, scor2, alic1, alic2, alsc1,
-                                    alsc2, fioac1, fioac2)
+                                    alsc2, fioac_control)
         self.init_agriculture_constants(ali, pali, lfh, palt, pl, alai1, alai2,
                                         io70, lyf1, sd, uili, alln,
                                         uildt, lferti, ilf, fspd, sfpc, dfr)
