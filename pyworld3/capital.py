@@ -38,8 +38,9 @@ import json
 from scipy.interpolate import interp1d
 import numpy as np
 
+
 from .specials import Smooth, clip
-from .utils import requires
+from .utils import requires,  _create_control_function
 
 
 class Capital:
@@ -180,6 +181,7 @@ class Capital:
 
     """
 
+    # wants to remove pyear (replace with control functions)
     def __init__(self, year_min=1900, year_max=2000, dt=1, pyear=1975,
                  verbose=False):
         self.pyear = pyear
@@ -580,8 +582,9 @@ class Capital:
         """
         
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioacc[k] = clip(self.fioac_control(self.time[k]), 0, 1)
-        self.fioac[k] = clip(self.fioacv[k], self.fioacc[k], self.time[k],
+        self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
+        
+        self.fioac[k] = clip(self.fioacv[k], self.fioac_control_values[k], self.fioacc[k], self.time[k],
                              self.iet)
 
     @requires(["sc"])
