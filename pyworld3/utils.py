@@ -38,7 +38,8 @@ import inspect
 import matplotlib.pyplot as plt
 from matplotlib.ticker import EngFormatter
 from matplotlib.image import imread
-from numpy import isnan
+from numpy import isnan, full, nan
+
 
 verbose_debug = False
 

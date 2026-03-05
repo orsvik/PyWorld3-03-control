@@ -117,6 +117,14 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
         self.verbose = False
 
+    def set_world3_control(self, **control_functions):
+        self.set_capital_control(**control_functions)
+        #self.set_agriculture_control(**control_functions)
+        #self.set_pollution_control(**control_functions)
+        #self.set_population_control(**control_functions)
+        #self.set_resource_control(**control_functions)
+
+        
     def init_world3_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
                               dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
                               lpd=20, mtfn=12, pet=4000, rlt=30, sad=20, zpgt=4000,

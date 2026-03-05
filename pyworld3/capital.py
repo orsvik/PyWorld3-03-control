@@ -584,7 +584,7 @@ class Capital:
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
         self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
         
-        self.fioac[k] = clip(self.fioacv[k], self.fioac_control_values[k], self.fioacc[k], self.time[k],
+        self.fioac[k] = clip(self.fioacv[k], self.fioac_control_values[k], self.time[k],
                              self.iet)
 
     @requires(["sc"])
