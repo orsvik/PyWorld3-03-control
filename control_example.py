@@ -12,6 +12,10 @@ plt.rcParams.update(params)
 def fioac_contol(t, world, k):
     return 0.45
 
+def isopc_control(t, world, k):
+    if t<=2000:
+        return 1
+    return 1.2
 
 def icor_control(t, world, k):
     if t <= 2023:
@@ -21,7 +25,7 @@ def icor_control(t, world, k):
 
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control)
+world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control, isopc_control=isopc_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
