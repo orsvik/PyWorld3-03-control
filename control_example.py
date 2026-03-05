@@ -21,7 +21,7 @@ def icor_control(t, world, k):
 
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(fioac_control=fioac_contol)
+world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

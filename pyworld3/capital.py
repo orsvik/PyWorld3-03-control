@@ -77,10 +77,6 @@ class Capital:
         labor force participation fraction []. The default is 0.75.
     lufdt : float, optional
         labor utilization fraction delay time [years]. The default is 2.
-    icor1 : float, optional
-        icor, value before time=pyear [years]. The default is 3.
-    icor2 : float, optional
-        icor, value after time=pyear [years]. The default is 3.
     scor1 : float, optional
         scor, value before time=pyear [years]. The default is 1.
     scor2 : float, optional
@@ -95,6 +91,8 @@ class Capital:
         alsc, value after time=pyear [years]. The default is 20.
 
     **Control signals** (added in update)
+    icor_control : function, optional
+        icor, control function with argument time [years]. The default is 3.
     fioac_control : function, optional
         fioac, control value with argument time [years]. The default is 0.43.
     isopc_control : function, optional
@@ -198,13 +196,14 @@ class Capital:
         Define the control commands. Their units are documented above at the class level.
         """
         default_control_functions = {
+            "icor_control": lambda _: 3,
             "fioac_control": lambda _: 0.43,
             "isopc_control": lambda _: 1.0,
         }
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2, icor1=3, icor2=3,
+                               iopcd=400, lfpf=0.75, lufdt=2,
                                scor1=1, scor2=1, alic1=14, alic2=14,
                                alsc1=20, alsc2=20, fioac_control= lambda _ : 0.43):
         """
@@ -218,8 +217,6 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.icor1 = icor1
-        self.icor2 = icor2
         self.scor1 = scor1
         self.scor2 = scor2
         self.alic1 = alic1
@@ -557,7 +554,8 @@ class Capital:
         From step k requires: nothing
         """
         
-        self.icor[k] = clip(self.icor2, self.icor1, self.time[k], self.pyear)
+        self.icor_control_values[k] = max(self.icor_control(k), 0.01)
+        self.icor[k] = self.icor_control_values[k]
 
     @requires(["io"], ["ic", "fcaor", "cuf", "icor"])
     def _update_io(self, k):
