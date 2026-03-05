@@ -256,8 +256,6 @@ class Capital:
         self.sopc = np.full((self.n,), np.nan)
         self.alsc = np.full((self.n,), np.nan)
         self.isopc = np.full((self.n,), np.nan)
-        self.isopc1 = np.full((self.n,), np.nan)
-        self.isopc2 = np.full((self.n,), np.nan)
         self.fioas = np.full((self.n,), np.nan)
         self.fioas1 = np.full((self.n,), np.nan)
         self.fioas2 = np.full((self.n,), np.nan)
@@ -312,7 +310,7 @@ class Capital:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["FIOACV", "ISOPC1", "ISOPC2", "FIOAS1", "FIOAS2",
+        func_names = ["FIOACV", "ISOPC", "FIOAS1", "FIOAS2",
                       "JPICU", "JPSCU", "JPH", "CUF"]
 
         for func_name in func_names:
@@ -593,16 +591,13 @@ class Capital:
 
         self.sc[k] = self.sc[j] + self.dt * (self.scir[jk] - self.scdr[jk])
 
-    @requires(["isopc1", "isopc2", "isopc"], ["iopc"])
+    @requires(["isopc"], ["iopc"])
     def _update_isopc(self, k):
         """
         From step k requires: IOPC
         """
-        
-        self.isopc1[k] = self.isopc1_f(self.iopc[k])
-        self.isopc2[k] = self.isopc2_f(self.iopc[k])
-        self.isopc[k] = clip(self.isopc2[k], self.isopc1[k], self.time[k],
-                             self.pyear)
+
+        self.isopc[k] = self.isopc_control(k) * self.isopc_f(self.iopc[k])
 
     @requires(["alsc"])
     def _update_alsc(self, k):
