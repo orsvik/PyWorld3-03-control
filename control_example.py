@@ -22,10 +22,13 @@ def icor_control(t, world, k):
         return world.icor[k]
     else:
         return world.fioac[k]
+    
+def ifpc_control(t, world, k):
+    return 1.2
 
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control, isopc_control=isopc_control)
+world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control, isopc_control=isopc_control, ifpc_control=ifpc_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
