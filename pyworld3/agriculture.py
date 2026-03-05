@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import Smooth, clip, Delay3, Dlinf3
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Agriculture:
@@ -122,6 +122,12 @@ class Agriculture:
     tdt : float [years]
         Technology development time. Default is 20
 
+
+    **Control signals**
+    ifpc_control : function, optional
+        fraction of normal ifpc used, control function with argument time [years]. The default is 1.0
+
+
     **Loop 1 - food from investment in land development**
 
     al : numpy.ndarray
@@ -142,12 +148,6 @@ class Agriculture:
         fioaa, value after time=pyear [].
     ifpc : numpy.ndarray
         indicated food per capita [vegetable-equivalent kilograms/person-year].
-    ifpc1 : numpy.ndarray
-        ifpc, value before time=pyear
-        [vegetable-equivalent kilograms/person-year].
-    ifpc2 : numpy.ndarray
-        ifpc, value after time=pyear
-        [vegetable-equivalent kilograms/person-year].
     ldr : numpy.ndarray
         land development rate [hectares/year].
     lfc : numpy.ndarray
@@ -263,6 +263,17 @@ class Agriculture:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
+
+    def set_agriculture_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+            "ifpc_control": lambda _: 1,
+ 
+        }
+        _create_control_function(self, default_control_functions, control_functions)
+
     def init_agriculture_constants(self, ali=0.9e9, pali=2.3e9, lfh=0.7,
                                    palt=3.2e9, pl=0.1, alai1=2, alai2=2,
                                    io70=7.9e11, lyf1=1, sd=0.07,
@@ -320,8 +331,6 @@ class Agriculture:
         self.fioaa1 = np.full((self.n,), np.nan)
         self.fioaa2 = np.full((self.n,), np.nan)
         self.ifpc = np.full((self.n,), np.nan)
-        self.ifpc1 = np.full((self.n,), np.nan)
-        self.ifpc2 = np.full((self.n,), np.nan)
         self.ldr = np.full((self.n,), np.nan)
         self.lfc = np.full((self.n,), np.nan)
         self.tai = np.full((self.n,), np.nan)
@@ -416,7 +425,7 @@ class Agriculture:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["IFPC1", "IFPC2", "FIOAA1", "FIOAA2", "DCPH",
+        func_names = ["IFPC", "FIOAA1", "FIOAA2", "DCPH",
                       "LYMC", "LYMAP1", "LYMAP2",
                       "FIALD", "MLYMC",
                       "LLMY1", "LLMY2", "UILPC",
@@ -699,16 +708,15 @@ class Agriculture:
         
         self.fpc[k] = self.f[k] / self.pop[k]
 
-    @requires(["ifpc1", "ifpc2", "ifpc"], ["iopc"])
+    @requires(["ifpc"], ["iopc"])
     def _update_ifpc(self, k):
         """
         From step k requires: IOPC
         """
-        
-        self.ifpc1[k] = self.ifpc1_f(self.iopc[k])
-        self.ifpc2[k] = self.ifpc2_f(self.iopc[k])
-        self.ifpc[k] = clip(self.ifpc2[k], self.ifpc1[k], self.time[k],
-                            self.pyear)
+
+        self.ifpc_control_values[k] = max(0, self.ifpc_control(k))
+        self.ifpc[k] = self.ifpc_control_values[k] * self.ifpc_f(self.iopc[k])
+
 
     @requires(["tai"], ["io", "fioaa"])
     def _update_tai(self, k):
