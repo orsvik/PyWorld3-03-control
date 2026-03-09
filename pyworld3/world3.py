@@ -298,7 +298,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         """
         # looks wrong, calling functions to parameters that don't exists?
-
+        # some function calls missing
 
         self._update_state_p1(k, j, jk)
         self._update_state_p2(k, j, jk)
@@ -340,29 +340,29 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_lfc(k)
         self._update_dcph(k)
         self._update_alai(k)
-        self._update_ai(k)
-        self._update_pfr(k)
+        self._update_ai(k, j, jk)
+        self._update_pfr(k, j)
         self._update_falm(k)
-        self._update_aiph(k)
+        # self._update_aiph(k)
         self._update_lymc(k)
         self._update_lyf(k)
         self._update_lfrt(k)
-        self._update_state_ppol(k, j, jk)
-        self._update_ppolx(k)
-        self._update_ppgao(k)
-        self._update_ppgf(k)
-        self._update_pptd(k)
-        self._update_ppapr(k, kl)
-        self._update_ahlm(k)
-        self._update_ahl(k)
-        self._update_ppasr(k, kl)
+        # self._update_state_ppol(k, j, jk)
+        self._update_ppolx(k) # updated also in pollution
+        # self._update_ppgao(k)
+        self._update_ppgf(k) # updated also in pollution
+        # self._update_pptd(k)
+        # self._update_ppapr(k, kl)
+        self._update_ahlm(k) # updated also in pollution
+        self._update_ahl(k) # updated also in pollution
+        self._update_ppasr(k) # updated also in pollution
         self._update_state_nr(k, j, jk)
         self._update_nrfr(k)
         self._update_fcaor(k)
         self._update_nruf(k)
         self._update_lmp(k)
         self._update_hsapc(k)
-        self._update_io(k)
+        # self._update_io(k)
         self._update_iopc(k)
         self._update_fioac(k)
         self._update_isopc(k)
@@ -385,7 +385,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_uilr(k)
         self._update_lrui(k, kl)
         self._update_lfr(k, kl)
-        self._update_pcrum(k)
+        self._update_pcrum(k) # updated also in pollution
         self._update_nrur(k, kl)
         self._update_cmi(k)
         self._update_lmc(k)
@@ -405,8 +405,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_fr(k)
         self._update_all(k)
         self._update_ler(k, kl)
-        self._update_ppgio(k)
-        self._update_ppgr(k, kl)
+        # self._update_ppgio(k)
+        self._update_ppgr(k) # updated in pollution too
         self._update_lmf(k)
         self._update_le(k)
         self._update_m1(k)
@@ -429,6 +429,42 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_b(k, kl)
         self._update_fioai(k)
         self._update_icir(k, kl)
+
+        # 2004 update added (population):
+        self._update_lei(k)
+        self._update_gdpc(k)
+        self._update_gdpi(k)
+        self._update_ei(k)
+        self._update_hwi(k)
+
+        # update 2004, added yield tech (agriculture)
+        self._update_frd(k)
+        self._update_ytcm(k)
+        self._update_ytcr(k,j)
+        self._update_yt(k,j)
+        self._update_lyf2(k)
+
+        # added from pollution, 2004 update
+        self._update_ppgi(k)
+        self._update_ppga(k)
+        self._update_ppar(k)
+        self._update_pp(k, j, jk)
+        self._update_pptc(k)
+        self._update_pptcm(k)
+        self._update_pptcr(k, j)
+        self._update_ppt(k, j)
+        self._update_ppgf2(k)
+        self._update_pptmi(k)
+        self._update_pii(k)
+        self._update_fio70(k)
+        self._update_ymap1(k)
+        self._update_ymap2(k)
+        self._update_apfay(k)
+        self._update_abl(k)
+        self._update_ef(k)
+
+        # not sure if functions from loopk_resource should be included
+
 
 
 def hello_world3():
