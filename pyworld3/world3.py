@@ -228,6 +228,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             run the loop without checking [unsafe]. The default is False.
 
         """
+
+        if fast: 
+            print("nejjjjj, ajajajajajajajaj naj stop")
+
+
         if fast:
             self._run_world3_fast()
         else:
