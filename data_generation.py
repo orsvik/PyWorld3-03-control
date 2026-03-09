@@ -87,7 +87,7 @@ def main_loop(reward_func, runs=100):
 def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, 1) # use 1 for now to test, limit time
+    df = main_loop(chosen_reward, 10) # use 1 for now to test, limit time
     df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
 
 main(reward_hwi)
