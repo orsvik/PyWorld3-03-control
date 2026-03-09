@@ -74,7 +74,7 @@ def main_loop(reward_func, runs=100):
         world3.init_world3_variables()
         world3.set_world3_table_functions()
         world3.set_world3_delay_functions()
-        world3.run_world3(fast=True) # fix fast=True at some point
+        world3.run_world3(fast=False) # fix fast=True at some point
 
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
         run_df["J"] = J_func(reward_func(world3))
