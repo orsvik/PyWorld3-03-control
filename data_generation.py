@@ -8,7 +8,7 @@ import pandas as pd
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 
-state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "time"] # state variables in World3-03
+state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in World3-03
 
 # Standard run used for randomizing initial state
 world_standard = World3(year_max=2100)
@@ -51,7 +51,7 @@ def generate_initial(total_runs, variables):
 
 def main_loop(reward_func, runs=100):
     variables = state_variables
-    not_time_variables = [var for var in state_variables if var != 'time']
+    not_time_variables = [var for var in state_variables if (var != 'time' and var != 'pcrum')]
     initial_values = generate_initial(runs, not_time_variables)
 
     df_list = []
@@ -74,7 +74,7 @@ def main_loop(reward_func, runs=100):
         world3.init_world3_variables()
         world3.set_world3_table_functions()
         world3.set_world3_delay_functions()
-        world3.run_world3(fast=False) # fix fast=True at some point
+        world3.run_world3(fast=True) # fix fast=True at some point
 
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
         run_df["J"] = J_func(reward_func(world3))
