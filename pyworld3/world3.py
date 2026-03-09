@@ -294,7 +294,14 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         """
         # looks wrong, calling functions to parameters that don't exists?
 
+        self.loopk_population(j, k, jk, kl)
+        self.loopk_capital(j, k, jk, kl)
+        self.loopk_pollution(j, k, jk, kl)
+        self.loopk_agriculture(j, k, jk, kl)
+        self.loopk_resource(j, k, jk, kl)
 
+        
+        """
         self._update_state_p1(k, j, jk)
         self._update_state_p2(k, j, jk)
         self._update_state_p3(k, j, jk)
@@ -424,6 +431,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_b(k, kl)
         self._update_fioai(k)
         self._update_icir(k, kl)
+        """
 
 
 def hello_world3():
