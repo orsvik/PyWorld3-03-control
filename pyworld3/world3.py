@@ -292,6 +292,9 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         
 
         """
+        # looks wrong, calling functions to parameters that don't exists?
+
+
         self._update_state_p1(k, j, jk)
         self._update_state_p2(k, j, jk)
         self._update_state_p3(k, j, jk)
