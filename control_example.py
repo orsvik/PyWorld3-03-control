@@ -60,8 +60,8 @@ plt.grid()
 
 plot_world_variables(
     world3.time,
-    [world3.ppolx],
-    ["PPOL"],
+    [world3.pp],
+    ["PP"],
     [[0, 20e8]],
     figsize=(7, 5),
     title="World3 control run - Pollution",

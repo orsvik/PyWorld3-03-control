@@ -554,9 +554,9 @@ class Pollution:
                 self.loopk_pollution(k_-1, k_, k_-1, k_, alone=True)
 
     @requires(["pcrum"])
-    def _update_pcrum(self, k):
+    def _update_pcrum(self, k): #Why not _update_state_pcrum()?
         """
-        State variable, requires previous step only
+        State variable, requires previous step only  
         """
         
         self.pcrum[k] = self.pcrum_f(self.iopc[k])
