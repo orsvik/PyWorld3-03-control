@@ -229,10 +229,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         """
 
-        if fast: 
-            print("nejjjjj, ajajajajajajajaj naj stop")
-
-
         if fast:
             self._run_world3_fast()
         else:
@@ -274,8 +270,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         checking [unsafe].
 
         """
+
+        print("in fast")
+
         self.redo_loop = True
-        while self.redo_loop:  # unsorted updates at initialization only
+        while self.redo_loop == True:  # unsorted updates at initialization only
             self.redo_loop = False
             self.loop0_population()
             self.loop0_capital()
@@ -283,10 +282,13 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self.loop0_pollution()
             self.loop0_resource()
 
+        
         for k_ in range(1, self.n):
-            if self.verbose:
-                print("go loop", k_)
+            # print("go loop", k_)
             self._loopk_world3_fast(k_-1, k_, k_-1, k_)
+
+       
+
 
     def _loopk_world3_fast(self, j, k, jk, kl): #2004 update: function calls have to be reworked
         """
@@ -464,6 +466,142 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_ef(k)
 
         # not sure if functions from loopk_resource should be included
+
+        """
+        
+        
+        
+        self._update_state_p1(k, j, jk)
+        self._update_state_p2(k, j, jk)
+        self._update_state_p3(k, j, jk)
+        self._update_state_p4(k, j, jk)
+        self._update_pop(k)
+        self._update_fpu(k)
+        self._update_ehspc(k)
+        self._update_lmhs(k)
+        self._update_d(k, jk)
+        self._update_cdr(k)
+        self._update_aiopc(k)
+        self._update_diopc(k)
+        self._update_sfsn(k)
+        self._update_ple(k)
+        self._update_cmple(k)
+        self._update_fcfpc(k)
+        self._update_fce(k)
+        self._update_cbr(k, jk)
+        self._update_lufd(k)
+        self._update_cuf(k)
+        self._update_state_ic(k, j, jk)
+        self._update_alic(k)
+        self._update_icdr(k, kl)
+        self._update_icor(k)
+        self._update_state_sc(k, j, jk)
+        self._update_alsc(k)
+        self._update_scdr(k, kl)
+        self._update_scor(k)
+        self._update_so(k)
+        self._update_sopc(k)
+        self._update_jpscu(k)
+        self._update_pjss(k)
+        self._update_lf(k)
+        self._update_state_al(k, j, jk)
+        self._update_state_pal(k, j, jk)
+        self._update_state_uil(k, j, jk)
+        self._update_state_lfert(k, j, jk)
+        self._update_lfc(k)
+        self._update_dcph(k)
+        self._update_alai(k)
+        self._update_ai(k)
+        self._update_pfr(k)
+        self._update_falm(k)
+        self._update_aiph(k)
+        self._update_lymc(k)
+        self._update_lyf(k)
+        self._update_lfrt(k)
+        self._update_state_ppol(k, j, jk)
+        self._update_ppolx(k)
+        self._update_ppgao(k)
+        self._update_ppgf(k)
+        self._update_pptd(k)
+        self._update_ppapr(k, kl)
+        self._update_ahlm(k)
+        self._update_ahl(k)
+        self._update_ppasr(k, kl)
+        self._update_state_nr(k, j, jk)
+        self._update_nrfr(k)
+        self._update_fcaor(k)
+        self._update_nruf(k)
+        self._update_lmp(k)
+        self._update_hsapc(k)
+        self._update_io(k)
+        self._update_iopc(k)
+        self._update_fioac(k)
+        self._update_isopc(k)
+        self._update_fioas(k)
+        self._update_scir(k, kl)
+        self._update_jpicu(k)
+        self._update_pjis(k)
+        self._update_jph(k)
+        self._update_pjas(k)
+        self._update_j(k)
+        self._update_luf(k)
+        self._update_ifpc(k)
+        self._update_mlymc(k)
+        self._update_lymap(k)
+        self._update_lfdr(k)
+        self._update_lfd(k, kl)
+        self._update_ly(k)
+        self._update_llmy(k)
+        self._update_uilpc(k)
+        self._update_uilr(k)
+        self._update_lrui(k, kl)
+        self._update_lfr(k, kl)
+        self._update_pcrum(k)
+        self._update_nrur(k, kl)
+        self._update_cmi(k)
+        self._update_lmc(k)
+        self._update_fie(k)
+        self._update_frsn(k)
+        self._update_dcfs(k)
+        self._update_dtf(k)
+        self._update_f(k)
+        self._update_fpc(k)
+        self._update_fioaa(k)
+        self._update_tai(k)
+        self._update_mpai(k)
+        self._update_mpld(k)
+        self._update_fiald(k)
+        self._update_ldr(k, kl)
+        self._update_cai(k)
+        self._update_fr(k)
+        self._update_all(k)
+        self._update_ler(k, kl)
+        self._update_ppgio(k)
+        self._update_ppgr(k, kl)
+        self._update_lmf(k)
+        self._update_le(k)
+        self._update_m1(k)
+        self._update_m2(k)
+        self._update_m3(k)
+        self._update_m4(k)
+        self._update_mat1(k, kl)
+        self._update_mat2(k, kl)
+        self._update_mat3(k, kl)
+        self._update_d1(k, kl)
+        self._update_d2(k, kl)
+        self._update_d3(k, kl)
+        self._update_d4(k, kl)
+        self._update_fm(k)
+        self._update_mtf(k)
+        self._update_nfc(k)
+        self._update_fsafc(k)
+        self._update_fcapc(k)
+        self._update_tf(k)
+        self._update_b(k, kl)
+        self._update_fioai(k)
+        self._update_icir(k, kl)
+        
+        """
 
 
 
