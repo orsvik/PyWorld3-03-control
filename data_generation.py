@@ -30,6 +30,11 @@ def J_func(reward):
 def reward_hwi(world):
     return world.hwi
 
+# Plots and prints for intuition
+print(reward_hwi(world_standard))
+plt.plot(reward_hwi(world_standard))
+plt.show()
+
 def get_mu_sigma(world, variable):
     data = getattr(world, variable)
     mean = data[0]
