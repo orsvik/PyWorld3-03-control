@@ -624,6 +624,9 @@ class Agriculture:
         self._update_aiph(k)
         self._update_lymc(k)
         self._update_lyf(k)
+
+
+        
         self._update_lymap(k) # need io from cap and io70 from pol
         # loop 4
         self._update_lfdr(k) # need pplox from pol

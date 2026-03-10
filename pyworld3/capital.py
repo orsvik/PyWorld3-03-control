@@ -474,6 +474,9 @@ class Capital:
         self._update_sopc(k) # need pop from pop
         self._update_fioas(k)
         self._update_scir(k, kl)
+
+
+        
         # back to industrial sector
         self._update_fioai(k) # need fioaa from agr
         self._update_icir(k, kl)

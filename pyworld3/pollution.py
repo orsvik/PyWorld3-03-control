@@ -507,7 +507,6 @@ class Pollution:
 
         """
         self._update_pcrum(k) # need iopc from cap
-        
         self._update_ppolx(k)
         if alone:
             self.loopk_exogenous(k)
@@ -532,6 +531,8 @@ class Pollution:
         self._update_ymap2(k)
         self._update_apfay(k)
         self._update_abl(k)
+
+
         self._update_ef(k) # need uil and from agr
 
     def run_pollution(self):

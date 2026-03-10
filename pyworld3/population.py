@@ -576,6 +576,9 @@ class Population:
         # Death rate subsector
         # connect World3 sectors to Population
         self._update_fpu(k) 
+
+
+        
         self._update_lmp(k) # need pplox from pol
         self._update_lmf(k) # need sfpc from agr
         self._update_cmi(k) # need iopc from cap
