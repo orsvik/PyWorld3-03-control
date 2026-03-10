@@ -9,6 +9,11 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 
 state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in World3-03
+no_init_vars = ["pcrum", "time"] # state variables in PyWorld3-03 not included in init_world3_constants
+init_vars = [var for var in state_variables if (var not in no_init_vars)] # state variables in PyWorld3-03 that ARE included in init_world3_constants
+
+MIN_YEAR = 1900
+MAX_YEAR = 2100
 
 # Standard run used for randomizing initial state
 world_standard = World3(year_max=2100)
@@ -56,14 +61,11 @@ def generate_initial(total_runs, variables):
 
 def main_loop(reward_func, runs=100):
     variables = state_variables
-    not_time_variables = [var for var in state_variables if (var != 'time' and var != 'pcrum')]
-    initial_values = generate_initial(runs, not_time_variables)
+    initial_values = generate_initial(runs, init_vars)
 
     df_list = []
 
     for run in tqdm(range(runs)):
-        MIN_YEAR = 1900
-        MAX_YEAR = 2100
         if run > 0.75 * runs:
             min_year = np.random.randint(MIN_YEAR + 1, MAX_YEAR)
             max_year = MAX_YEAR
@@ -92,7 +94,7 @@ def main_loop(reward_func, runs=100):
 def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, 10) # use 1 for now to test, limit time
+    df = main_loop(chosen_reward, 100) # use 100 for now to test, limit time
     df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
 
 main(reward_hwi)
