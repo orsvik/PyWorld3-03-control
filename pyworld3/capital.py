@@ -482,7 +482,7 @@ class Capital:
         self._update_pjis(k)
         self._update_jpscu(k)
         self._update_pjss(k)
-        self._update_jph(k) # need aiph from pol
+        self._update_jph(k) # need aiph from agr
         self._update_pjas(k) # need al from agr
         self._update_j(k)
         self._update_lf(k)
