@@ -506,13 +506,13 @@ class Pollution:
             is False.
 
         """
-        self._update_pcrum(k)
+        self._update_pcrum(k) # need iopc from cap
         
         self._update_ppolx(k)
         if alone:
             self.loopk_exogenous(k)
-        self._update_ppgi(k)
-        self._update_ppga(k)
+        self._update_ppgi(k) # need pop from pop
+        self._update_ppga(k) # need aiph and al from arg
         self._update_ppgf(k)
         self._update_ppgr(k)
         self._update_ppar(k)
@@ -526,13 +526,13 @@ class Pollution:
         self._update_ppt(k,j)
         self._update_ppgf2(k)
         self._update_pptmi(k)
-        self._update_pii(k)
-        self._update_fio70(k)
+        self._update_pii(k) # need io from cap
+        self._update_fio70(k) # need io from cap
         self._update_ymap1(k)
         self._update_ymap2(k)
         self._update_apfay(k)
         self._update_abl(k)
-        self._update_ef(k)
+        self._update_ef(k) # need uil and from agr
 
     def run_pollution(self):
         """
@@ -554,7 +554,7 @@ class Pollution:
                 self.loopk_pollution(k_-1, k_, k_-1, k_, alone=True)
 
     @requires(["pcrum"])
-    def _update_pcrum(self, k): #Why not _update_state_pcrum()?
+    def _update_pcrum(self, k): #Why not _update_state_pcrum()? Why both in resources and pollution?
         """
         State variable, requires previous step only  
         """
