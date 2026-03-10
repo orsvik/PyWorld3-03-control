@@ -14,6 +14,7 @@ init_vars = [var for var in state_variables if (var not in no_init_vars)] # stat
 
 MIN_YEAR = 1900
 MAX_YEAR = 2100
+PLOT = False
 
 # Standard run used for randomizing initial state
 world_standard = World3(year_max=2100)
@@ -35,10 +36,11 @@ def J_func(reward):
 def reward_hwi(world):
     return world.hwi
 
-# Plots and prints for intuition
-print(reward_hwi(world_standard))
-plt.plot(reward_hwi(world_standard))
-plt.show()
+if PLOT:
+    # Plots and prints for intuition
+    print(reward_hwi(world_standard))
+    plt.plot(reward_hwi(world_standard))
+    plt.show()
 
 def get_mu_sigma(world, variable):
     data = getattr(world, variable)
@@ -94,7 +96,7 @@ def main_loop(reward_func, runs=100):
 def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, 100) # use 100 for now to test, limit time
+    df = main_loop(chosen_reward, 10) # use 10 for now to test, limit time
     df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
 
 main(reward_hwi)
