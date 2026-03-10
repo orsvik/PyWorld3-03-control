@@ -115,7 +115,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt) + 1
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
-        self.verbose = False
+        self.verbose = verbose
 
     def set_world3_control(self, **control_functions):
         self.set_capital_control(**control_functions)
