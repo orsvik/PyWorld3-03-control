@@ -565,8 +565,8 @@ class Population:
             is False.
 
         """
-        self._update_state_p1(k, j, jk)
-        self._update_state_p2(k, j, jk)
+        self._update_state_p1(k, j, jk) 
+        self._update_state_p2(k, j, jk) 
         self._update_state_p3(k, j, jk)
         self._update_state_p4(k, j, jk)
         self._update_pop(k)
@@ -575,11 +575,11 @@ class Population:
             self.loopk_exogenous(k)
         # Death rate subsector
         # connect World3 sectors to Population
-        self._update_fpu(k)
-        self._update_lmp(k)
-        self._update_lmf(k)
-        self._update_cmi(k)
-        self._update_hsapc(k)
+        self._update_fpu(k) 
+        self._update_lmp(k) # need pplox from pol
+        self._update_lmf(k) # need sfpc from cap
+        self._update_cmi(k) # need iopc from cap
+        self._update_hsapc(k) # need sopc from cap
         # inside Population sector
         self._update_ehspc(k)
         self._update_lmhs(k)
@@ -601,9 +601,9 @@ class Population:
         # Birth rate subsector
         # connect World3 sectors to Population
         # industrial Output > Population
-        self._update_aiopc(k)
-        self._update_diopc(k)
-        self._update_fie(k)
+        self._update_aiopc(k) # need iopc from cap
+        self._update_diopc(k) # maybe need ipoc from cap
+        self._update_fie(k) # need ipoc from cap
         # inside Population sector
         self._update_sfsn(k)
         self._update_frsn(k)
@@ -615,7 +615,7 @@ class Population:
         self._update_mtf(k)
         self._update_nfc(k)
         self._update_fsafc(k)
-        self._update_fcapc(k)
+        self._update_fcapc(k) # need sopc from cap
         self._update_fcfpc(k)
         self._update_fce(k)
         self._update_tf(k)
@@ -624,7 +624,7 @@ class Population:
         
         #2004 update added:
         self._update_lei(k)
-        self._update_gdpc(k)
+        self._update_gdpc(k) # need iopc from cap
         self._update_gdpi(k)
         self._update_ei(k)
         self._update_hwi(k)
@@ -880,7 +880,8 @@ class Population:
         """
         From step k=0 requires: IOPC, else nothing
         """
-        
+        #don't need iopc? 
+
         self.diopc[k] = self.dlinf3_iopc(k, self.sad)
 
     @requires(["fie"], ["iopc", "aiopc"])
