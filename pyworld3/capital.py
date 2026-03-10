@@ -458,12 +458,12 @@ class Capital:
         self._update_alic(k)
         self._update_icdr(k, kl)
         self._update_icor(k)
-        self._update_io(k)
-        self._update_iopc(k)
+        self._update_io(k) # need fcaor from res
+        self._update_iopc(k) # need pop from pop
         self._update_fioac(k)
         #added, 2004 update
         self._update_cio(k)
-        self._update_ciopc(k)
+        self._update_ciopc(k) # need pop from pop
         # service subsector
         self._update_state_sc(k, j, jk)
         self._update_isopc(k)
@@ -471,19 +471,19 @@ class Capital:
         self._update_scdr(k, kl)
         self._update_scor(k)
         self._update_so(k)
-        self._update_sopc(k)
+        self._update_sopc(k) # need pop from pop
         self._update_fioas(k)
         self._update_scir(k, kl)
         # back to industrial sector
-        self._update_fioai(k)
+        self._update_fioai(k) # need fioaa from agr
         self._update_icir(k, kl)
         # back to job subsector
         self._update_jpicu(k)
         self._update_pjis(k)
         self._update_jpscu(k)
         self._update_pjss(k)
-        self._update_jph(k)
-        self._update_pjas(k)
+        self._update_jph(k) # need aiph from pol
+        self._update_pjas(k) # need al from agr
         self._update_j(k)
         self._update_lf(k)
         self._update_luf(k)
