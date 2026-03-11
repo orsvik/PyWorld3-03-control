@@ -146,7 +146,7 @@ def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
     s=time.time()
-    df = main_loop(chosen_reward, runs=10) # use small number for now to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=20) # use small number for now to test, limit time; 1000 was used in BT 2025
     e=time.time()
     print("time: ", e-s)
     if DEBUG_MODE:
