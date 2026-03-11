@@ -24,6 +24,7 @@ init_vars = [var for var in state_variables if (var not in no_init_vars)] # stat
 MIN_YEAR = 1900
 MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
+DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR)
@@ -45,10 +46,12 @@ def J_func(reward):
     J = np.zeros((iterations, 1))
     J[iterations-1] = reward[iterations-1] # the last J value is simply the last g value
     for k in range(2, iterations+1):
+        # J[n] is the reward at step n plus J[n+1]
         J[iterations-k] = reward[iterations-k] + J[iterations-k+1]
     return J
 
 def reward_hwi(world):
+    # A reward function g being the Human Welfare Index (HWI) as defined in PyWorld3-03
     return world.hwi
 
 if PLOT:
@@ -58,9 +61,14 @@ if PLOT:
     plt.show()
 
 def get_mu_sigma(world, variable):
+    """
+    In:
+        world - World3 object: the current/relevant world
+        variable - 
+    """
     data = getattr(world, variable)
     mean = data[0]
-    std = np.std(data) / 2 # normalization, done by last year's students
+    std = np.std(data) / 2 # regularisation, prevent extreme values
     return mean, std
 
 def generate_initial(total_runs, variables):
@@ -111,7 +119,11 @@ def main_loop(reward_func, runs=100):
 def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, 10) # use 10 for now to test, limit time
-    df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
+    df = main_loop(chosen_reward, runs=1) # use small number for now to test, limit time; 1000 was used in BT 2025
+    if DEBUG_MODE:
+        print("Debug mode. Data does not get saved to file.")
+    else:
+        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
+        print("The data was saved to file.")
 
 main(reward_hwi)
