@@ -509,7 +509,7 @@ class Pollution:
         self._update_pcrum(k) # need iopc from cap
 
         self._update_pp(k,j,jk)
-        
+
         self._update_ppolx(k)
         if alone:
             self.loopk_exogenous(k)
@@ -562,6 +562,7 @@ class Pollution:
         """
         State variable, requires previous step only  
         """
+        # not state 
         
         self.pcrum[k] = self.pcrum_f(self.iopc[k])
 

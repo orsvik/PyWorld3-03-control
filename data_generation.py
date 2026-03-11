@@ -14,6 +14,7 @@ from pyworld3 import World3
 import pandas as pd
 from tqdm import tqdm
 from matplotlib import pyplot as plt
+import time
 
 # Declare state variables of different categories
 state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery
@@ -109,9 +110,16 @@ def main_loop(reward_func, runs=100):
     return df
 
 def main(chosen_reward):
+
+    # start measure time
+    s=time.time()
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
     df = main_loop(chosen_reward, 10) # use 10 for now to test, limit time
     df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
+
+    # end measure time
+    e=time.time()
+    print("time: ", e-s )
 
 main(reward_hwi)
