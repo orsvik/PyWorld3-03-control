@@ -514,6 +514,8 @@ class Pollution:
         if alone:
             self.loopk_exogenous(k)
         self._update_ppgi(k) # need pop from pop
+
+        
         self._update_ppga(k) # need aiph and al from arg
         self._update_ppgf(k)
         self._update_ppgr(k)
