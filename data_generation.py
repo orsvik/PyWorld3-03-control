@@ -25,6 +25,7 @@ init_vars = [var for var in state_variables if (var not in no_init_vars)] # stat
 MIN_YEAR = 1900
 MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
+DEBUG_MODE = True # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR)
@@ -46,10 +47,12 @@ def J_func(reward):
     J = np.zeros((iterations, 1))
     J[iterations-1] = reward[iterations-1] # the last J value is simply the last g value
     for k in range(2, iterations+1):
+        # J[n] is the reward at step n plus J[n+1]
         J[iterations-k] = reward[iterations-k] + J[iterations-k+1]
     return J
 
 def reward_hwi(world):
+    # A reward function g being the Human Welfare Index (HWI) as defined in PyWorld3-03
     return world.hwi
 
 if PLOT:
@@ -59,12 +62,28 @@ if PLOT:
     plt.show()
 
 def get_mu_sigma(world, variable):
+    """
+    In:
+        world - World3 object: the current/relevant world
+        variable - str: current variable
+    Out:
+        the mean and half of the standard deviation of the variable's data points over the whole run of the World3 object world
+    """
     data = getattr(world, variable)
     mean = data[0]
-    std = np.std(data) / 2 # normalization, done by last year's students
+    std = np.std(data) / 2 # regularisation, prevent extreme values
     return mean, std
 
 def generate_initial(total_runs, variables):
+    """
+    In:
+        total_runs - int: total number of simulations to generate initial data for
+        variables - list[String]: the variables that will be initialised randomly with Gaussian distribution
+    Out:
+        initial_variables - list[dictionary<String,float>]: Dictionary with the initial variables (name and value)
+    
+    Generate initial values from a Gaussian distribution with mean and variance decided by each variable's values over the standard run
+    """
     array = []
     for _ in range(total_runs):
         dict = {}
@@ -78,8 +97,20 @@ def generate_initial(total_runs, variables):
     return array
 
 def main_loop(reward_func, runs=100):
+    """
+    In:
+        reward func - function: function that takes a World3 object as input and returns an array of rewards
+        runs - int: number of runs
+    Returns:
+        dataframe with initial states and one cumulative reward J for each initial state(??)
+    
+    Simulates runs of the World3 model without any control functions. The input is randomised with values based on the standard run.
+    25% of the runs start at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR (??)
+    25% of the runs end at a random year selected uniformly between MIN_YEAR and MAX_YEAR (??)
+    MIN_YEAR and MAX_YEAR are defined in the beginning of this file
+    """
     variables = state_variables
-    initial_values = generate_initial(runs, init_vars)
+    initial_values = generate_initial(runs, init_vars) # init_vars defined in the beginning of this file
 
     df_list = []
 
@@ -110,16 +141,18 @@ def main_loop(reward_func, runs=100):
     return df
 
 def main(chosen_reward):
-
-    # start measure time
-    s=time.time()
+    if DEBUG_MODE:
+        print("Debug mode active.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, 10) # use 10 for now to test, limit time
-    df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
-
-    # end measure time
+    s=time.time()
+    df = main_loop(chosen_reward, runs=10) # use small number for now to test, limit time; 1000 was used in BT 2025
     e=time.time()
-    print("time: ", e-s )
+    print("time: ", e-s)
+    if DEBUG_MODE:
+        print("Debug mode. Data does not get saved to file.")
+    else:
+        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
+        print("The data was saved to file.")
 
 main(reward_hwi)
