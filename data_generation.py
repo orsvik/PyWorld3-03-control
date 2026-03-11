@@ -135,7 +135,7 @@ def main_loop(reward_func, runs=100):
         world3.set_world3_delay_functions()
         world3.run_world3(fast=False) # fix fast=True at some point
 
-        # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J"
+        # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J". The cumulative reward is saved for each time step in the run.
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
         run_df["J"] = J_func(reward_func(world3))
         run_df = run_df[run_df['time'] <= max_year] # clear dataframe of data where the it does not hold that the time is less than or equal to max_year
@@ -150,7 +150,7 @@ def main(chosen_reward):
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=20) # use small number for now to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=100) # use small number for now to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
