@@ -306,7 +306,7 @@ class Resource:
         self._update_nruf2(k)
         self._update_nruf(k)
 
-        
+
         self._update_pcrum(k) # need iopc from cap
         self._update_nrur(k, kl) # need pop from pop
 
@@ -332,8 +332,14 @@ class Resource:
         """
         State variable, requires previous step only
         """
-        
+
+        #if k<10:
+            #print(self.dt)
+            #print(self.nrur[jk])
+            #print(self.nr[j])
         self.nr[k] = self.nr[j] - self.dt * self.nrur[jk]
+        #if k<10:
+            #print(self.nr[k])
 
     @requires(["nrfr"], ["nr"])
     def _update_nrfr(self, k):
@@ -420,3 +426,11 @@ class Resource:
         """
         
         self.nrur[kl] = self.pop[k] * self.pcrum[k] * self.nruf[k]
+
+        if k<10:
+            print("nrur, pop, pcrum, nruf")
+            print("k: " , k)
+            print(self.nrur[kl])
+            print(self.pop[k])
+            print(self.pcrum[k])
+            print(self.nruf[k])

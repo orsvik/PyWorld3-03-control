@@ -41,6 +41,7 @@ from .pollution import Pollution
 from .resource import Resource
 
 
+
 class World3(Population, Capital, Agriculture, Pollution, Resource):
     """
     The World3 model as it is described in the technical book [1]_. World3 is
@@ -99,7 +100,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
     j = k - 1
     kl = k
     jk = j
+
     """
+
+  
 
     def __init__(self, year_min=1900, year_max=2200, dt=0.5, pyear=2026, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
                  iphst=1940, verbose=False):
@@ -250,6 +254,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self.loop0_agriculture()
             self.loop0_pollution()
             self.loop0_resource()
+        print("nrur 0:")
+        print(self.nrur[0])
+        print("nr 0:")
+        print(self.nr[0])
            
         self.verbose = False
         for k_ in range(1, self.n):
@@ -273,6 +281,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         print("in fast")
 
+
+
         self.redo_loop = True
         while self.redo_loop == True:  # unsorted updates at initialization only
             self.redo_loop = False
@@ -282,11 +292,29 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self.loop0_pollution()
             self.loop0_resource()
 
+        print("done initalizing")
         
+        """
+        self.redo_loop = True
+        while self.redo_loop == True:  # unsorted updates at initialization only
+            self.redo_loop = False
+            self.loop0_population()
+            self.loop0_capital()
+            self.loop0_agriculture()
+            self.loop0_pollution()
+            self.loop0_resource()
+
+        """
+        print("nrur 0:")
+        print(self.nrur[0])
+        print("nr 0:")
+        print(self.nr[0])
+
+      
         for k_ in range(1, self.n):
             # print("go loop", k_)
             self._loopk_world3_fast(k_-1, k_, k_-1, k_)
-
+        
        
 
 
@@ -300,12 +328,15 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         """
 
+        
+
+
         # looks wrong, calling functions to parameters that don't exists?
         # some function calls missing
 
-
         # from res
         self._update_state_nr(k, j, jk)
+        #print(self.nr[k])
         self._update_nrfr(k)
         self._update_fcaor(k)
         self._update_rtc(k)
@@ -488,7 +519,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_yt(k,j)
         self._update_lyf2(k)
 
-
+       
 
 
 def hello_world3():
