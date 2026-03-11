@@ -140,6 +140,8 @@ def main_loop(reward_func, runs=100):
     return df
 
 def main(chosen_reward):
+    if DEBUG_MODE:
+        print("Debug mode active.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
     df = main_loop(chosen_reward, runs=1) # use small number for now to test, limit time; 1000 was used in BT 2025
