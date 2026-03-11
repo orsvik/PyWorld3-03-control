@@ -16,7 +16,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 
 # Declare state variables of different categories
-state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery
+state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery, I tried removing it here
 no_init_vars = ["pcrum", "time"] # state variables in PyWorld3-03 not included in init_world3_constants
 init_vars = [var for var in state_variables if (var not in no_init_vars)] # state variables in PyWorld3-03 that ARE included in init_world3_constants
 
@@ -147,14 +147,14 @@ def main_loop(reward_func, runs=100):
 
 def main(chosen_reward):
     if DEBUG_MODE:
-        print("Debug mode active.")
+        print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=1) # use small number for now to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=20) # use small number for now to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
-        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
+        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
         print("The data was saved to file.")
 
 main(reward_hwi)
