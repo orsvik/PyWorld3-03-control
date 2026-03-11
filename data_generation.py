@@ -101,7 +101,7 @@ def main_loop(reward_func, runs=100):
         reward func - function: function that takes a World3 object as input and returns an array of rewards
         runs - int: number of runs
     Returns:
-        dataframe with initial states and one cumulative reward J for each initial state(??)
+        dataframe with initial states and one cumulative reward J for each World3 instance (selected start year, end year, and initial values; no controls)
     
     Simulates runs of the World3 model without any control functions. The input is randomised with values based on the standard run.
     25% of the runs start at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR, and end at MAX_YEAR
@@ -115,6 +115,7 @@ def main_loop(reward_func, runs=100):
     df_list = []
 
     for run in tqdm(range(runs)):
+        # Adapt start and end year
         if run > 0.75 * runs:
             min_year = np.random.randint(MIN_YEAR + 1, MAX_YEAR)
             max_year = MAX_YEAR
@@ -124,6 +125,8 @@ def main_loop(reward_func, runs=100):
         else:
             min_year = MIN_YEAR
             max_year = MAX_YEAR
+
+        # Run model without controls but with selected start year, end year, and initial values
         world3 = World3(year_max=max_year, year_min=min_year)
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
@@ -132,12 +135,14 @@ def main_loop(reward_func, runs=100):
         world3.set_world3_delay_functions()
         world3.run_world3(fast=False) # fix fast=True at some point
 
+        # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J"
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
         run_df["J"] = J_func(reward_func(world3))
-        run_df = run_df[run_df['time'] <= max_year]
-        df_list.append(run_df)
+        run_df = run_df[run_df['time'] <= max_year] # clear dataframe of data where the it does not hold that the time is less than or equal to max_year
+        df_list.append(run_df) # append to list of all run dataframes
 
-    df = pd.concat(df_list, ignore_index=True)
+    # Collect all run dataframes into one common dataframe
+    df = pd.concat(df_list, ignore_index=True) # for why ignore_index=True, see pandas.concat documentation
     return df
 
 def main(chosen_reward):
