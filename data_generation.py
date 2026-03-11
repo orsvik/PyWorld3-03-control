@@ -66,6 +66,7 @@ def get_mu_sigma(world, variable):
         world - World3 object: the current/relevant world
         variable - 
     """
+    print("VARIABLE", variable)
     data = getattr(world, variable)
     mean = data[0]
     std = np.std(data) / 2 # regularisation, prevent extreme values
@@ -119,7 +120,7 @@ def main_loop(reward_func, runs=100):
 def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=1) # use small number for now to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=10) # use small number for now to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
