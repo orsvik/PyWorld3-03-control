@@ -337,9 +337,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
        
 
 
-        #if k<10:
-            #print("k: ", k)
-            #print()
+
 
         # from pop 1
         self._update_state_p1(k, j, jk) 
@@ -349,10 +347,14 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_pop(k)
         self._update_fpu(k) 
 
+
+
         # from res 1
         self._update_state_nr(k, j, jk)
         self._update_nrfr(k)
         self._update_fcaor(k)
+
+
 
         # from cap 1
         self._update_lufd(k)
@@ -375,6 +377,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_sopc(k) # need pop from pop
         self._update_fioas(k)
         self._update_scir(k, kl)
+
+        
 
         # from pol 1
         self._update_pcrum(k) # need iopc from cap
@@ -402,6 +406,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_cpfr(k)
         self._update_aiph(k)
         self._update_lymc(k)
+        self._update_frd(k)
+        self._update_ytcm(k)
+        self._update_ytcr(k,j)
+        self._update_yt(k,j)
+        self._update_lyf2(k)
         self._update_lyf(k)
         self._update_lymap(k) # need io from cap and io70 from pol
         self._update_lfdr(k) # need pplox from pol
@@ -422,11 +431,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_lrui(k, kl)
         self._update_lfrt(k)
         self._update_lfr(k, kl)
-        self._update_frd(k)
-        self._update_ytcm(k)
-        self._update_ytcr(k,j)
-        self._update_yt(k,j)
-        self._update_lyf2(k)
+        
 
 
         # from pop 2
@@ -527,7 +532,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
 
 
-
+        if k<5:
+            print("k: ", k)
+            print(self.lyf[k])
+    
 
 
 

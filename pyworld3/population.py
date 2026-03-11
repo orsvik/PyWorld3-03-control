@@ -659,6 +659,8 @@ class Population:
 
         self.p1[k] = self.p1[j] + self.dt*(self.b[jk] - self.d1[jk] - self.mat1[jk])
 
+
+        
     @requires(["p2"])
     def _update_state_p2(self, k, j, jk):
         """
@@ -715,6 +717,10 @@ class Population:
         
         self.lmf[k] = self.lmf_f(self.fpc[k] / self.sfpc )  # Food >
         #changed table function, 2004 update
+        #if k<5:
+            #print("sfpc: ", self.sfpc)
+            #print("fpc: ",self.fpc[k] )
+            #print("lmf: ", self.lmf[k])
 
     @requires(["cmi"], ["iopc"])
     def _update_cmi(self, k):
@@ -949,8 +955,13 @@ class Population:
         """
         From step k requires: LE
         """
+        #if k<5:
+            
+            #print("le: ", self.le[k])
         
         self.fm[k] = self.fm_f(self.le[k])
+        #if k<5:
+            #print("fm: ", self.fm[k])
 
     @requires(["mtf"], ["fm"])
     def _update_mtf(self, k):

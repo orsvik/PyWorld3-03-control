@@ -627,6 +627,12 @@ class Agriculture:
         
 
         self._update_lymc(k)
+        #update 2004, added yield tech
+        self._update_frd(k)
+        self._update_ytcm(k)
+        self._update_ytcr(k,j)
+        self._update_yt(k,j)
+        self._update_lyf2(k)
         self._update_lyf(k)
 
         
@@ -661,12 +667,8 @@ class Agriculture:
         self._update_lfrt(k)
         self._update_lfr(k, kl)
         
-        #update 2004, added yield tech
-        self._update_frd(k)
-        self._update_ytcm(k)
-        self._update_ytcr(k,j)
-        self._update_yt(k,j)
-        self._update_lyf2(k)
+        
+        
 
     def run_agriculture(self):
         """
