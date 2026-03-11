@@ -24,7 +24,7 @@ init_vars = [var for var in state_variables if (var not in no_init_vars)] # stat
 MIN_YEAR = 1900
 MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
-DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
+DEBUG_MODE = True # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR)
@@ -64,15 +64,25 @@ def get_mu_sigma(world, variable):
     """
     In:
         world - World3 object: the current/relevant world
-        variable - 
+        variable - str: current variable
+    Out:
+        the mean and half of the standard deviation of the variable's data points over the whole run of the World3 object world
     """
-    print("VARIABLE", variable)
     data = getattr(world, variable)
     mean = data[0]
     std = np.std(data) / 2 # regularisation, prevent extreme values
     return mean, std
 
 def generate_initial(total_runs, variables):
+    """
+    In:
+        total_runs - int: total number of simulations to generate initial data for
+        variables - list[String]: the variables that will be initialised randomly with Gaussian distribution
+    Out:
+        initial_variables - list[dictionary<String,float>]: Dictionary with the initial variables (name and value)
+    
+    Generate initial values from a Gaussian distribution with mean and variance decided by each variable's values over the standard run
+    """
     array = []
     for _ in range(total_runs):
         dict = {}
@@ -86,6 +96,15 @@ def generate_initial(total_runs, variables):
     return array
 
 def main_loop(reward_func, runs=100):
+    """
+    In:
+        reward func - function: function that takes a World3 object as input and returns an array of rewards
+        runs - int: number of runs
+    Returns:
+        dataframe with initial states and one cumulative reward J for each initial state(??)
+    
+    
+    """
     variables = state_variables
     initial_values = generate_initial(runs, init_vars)
 
@@ -120,7 +139,7 @@ def main_loop(reward_func, runs=100):
 def main(chosen_reward):
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=10) # use small number for now to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=1) # use small number for now to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
