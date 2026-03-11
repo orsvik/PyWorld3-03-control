@@ -507,6 +507,9 @@ class Pollution:
 
         """
         self._update_pcrum(k) # need iopc from cap
+
+        self._update_pp(k,j,jk)
+        
         self._update_ppolx(k)
         if alone:
             self.loopk_exogenous(k)
@@ -515,7 +518,7 @@ class Pollution:
         self._update_ppgf(k)
         self._update_ppgr(k)
         self._update_ppar(k)
-        self._update_pp(k,j,jk)
+        
         self._update_ahlm(k)
         self._update_ahl(k)
         self._update_ppasr(k)
