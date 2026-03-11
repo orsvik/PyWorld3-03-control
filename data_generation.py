@@ -1,23 +1,32 @@
 """
-New version of data_generation.py written by students Emil Johansson and Linnéa Bäckvall last year
+Generate training data to be used in RL file and save the data as a dataframe with states and rewards as a parquet file
+
+Authors of this modified file: Evelina Örsvik and Linnea Stålberg
+
+Date of modifications: March 2026
+
+Note on original authors: This file is an adaptation of Emil Johansson's and Linnéa Bäckvall's training data file `data_generation.py` available at https://github.com/emilj610/pyworld3A3. It has been modified to fit our (the new authors') purposes.
 """
 
+# Imports
 import numpy as np
 from pyworld3 import World3
 import pandas as pd
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 
-state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in World3-03
+# Declare state variables of different categories
+state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery
 no_init_vars = ["pcrum", "time"] # state variables in PyWorld3-03 not included in init_world3_constants
 init_vars = [var for var in state_variables if (var not in no_init_vars)] # state variables in PyWorld3-03 that ARE included in init_world3_constants
 
+# Declare constants used throughout the file
 MIN_YEAR = 1900
 MAX_YEAR = 2100
-PLOT = False
+PLOT = False # toggle plots and prints
 
-# Standard run used for randomizing initial state
-world_standard = World3(year_max=2100)
+# Standard run, used for randomising initial state
+world_standard = World3(year_max=MAX_YEAR)
 world_standard.set_world3_control()
 world_standard.init_world3_constants()
 world_standard.init_world3_variables()
@@ -26,9 +35,15 @@ world_standard.set_world3_delay_functions()
 world_standard.run_world3(fast=False)
 
 def J_func(reward):
+    """
+    In:
+        reward - numpy array: rewards (g values) for the simulation
+    Out:
+        Array of J function values, where J is the cumulative reward for each step onwards
+    """
     iterations = reward.shape[0]
     J = np.zeros((iterations, 1))
-    J[iterations-1] = reward[iterations-1]
+    J[iterations-1] = reward[iterations-1] # the last J value is simply the last g value
     for k in range(2, iterations+1):
         J[iterations-k] = reward[iterations-k] + J[iterations-k+1]
     return J
