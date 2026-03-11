@@ -305,11 +305,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self.loop0_resource()
 
         """
-        print("nrur 0:")
-        print(self.nrur[0])
-        print("nr 0:")
-        print(self.nr[0])
-
+        #print("nrur 0:")
+        #print(self.nrur[0])
+        #print("nr 0:")
+        #print(self.nr[0])
+        #print(self.rtc[0])
       
         for k_ in range(1, self.n):
             # print("go loop", k_)
@@ -339,13 +339,16 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         #print(self.nr[k])
         self._update_nrfr(k)
         self._update_fcaor(k)
-        self._update_rtc(k)
-        self._update_rtcm(k)
-        self._update_rtcr(k)
-        self._update_rt(k,j)
+        
+        
+        
         self._update_nruf2(k)
         self._update_nruf(k)
 
+
+        if k<10:
+            print("k: ", k)
+            print(self.rtc[k])
 
         # from pop
         self._update_state_p1(k, j, jk) 
@@ -438,6 +441,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         # from res 2
         self._update_pcrum(k) # need iopc from cap
         self._update_nrur(k, kl) # need pop from pop
+        self._update_rtc(k)
+        self._update_rtcm(k)
+        self._update_rtcr(k) 
+        self._update_rt(k,j)
 
 
         # from pop 2
@@ -518,6 +525,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_ytcr(k,j)
         self._update_yt(k,j)
         self._update_lyf2(k)
+
+        
 
        
 

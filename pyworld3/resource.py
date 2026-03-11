@@ -341,6 +341,14 @@ class Resource:
         #if k<10:
             #print(self.nr[k])
 
+        #if k<10:
+            #print("dt, nrur, nr, nr")
+            #print("k: " , k)
+            #print(self.dt)
+            #print(self.nrur[jk])
+            #print(self.nr[j])
+            #print(self.nr[k])
+
     @requires(["nrfr"], ["nr"])
     def _update_nrfr(self, k):
         """
@@ -427,10 +435,10 @@ class Resource:
         
         self.nrur[kl] = self.pop[k] * self.pcrum[k] * self.nruf[k]
 
-        if k<10:
-            print("nrur, pop, pcrum, nruf")
-            print("k: " , k)
-            print(self.nrur[kl])
-            print(self.pop[k])
-            print(self.pcrum[k])
-            print(self.nruf[k])
+        #if k<10:
+            #print("nrur, pop, pcrum, nruf")
+            #print("k: " , k)
+            #print(self.nrur[kl])
+            #print(self.pop[k])
+            #print(self.pcrum[k])
+            #print(self.nruf[k])
