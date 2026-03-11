@@ -104,8 +104,9 @@ def main_loop(reward_func, runs=100):
         dataframe with initial states and one cumulative reward J for each initial state(??)
     
     Simulates runs of the World3 model without any control functions. The input is randomised with values based on the standard run.
-    25% of the runs start at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR (??)
-    25% of the runs end at a random year selected uniformly between MIN_YEAR and MAX_YEAR (??)
+    25% of the runs start at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR, and end at MAX_YEAR
+    25% of the runs end at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR, and start at MIN_YEAR
+    The rest of the runs start at MIN_YEAR and end at MAX_YEAR.
     MIN_YEAR and MAX_YEAR are defined in the beginning of this file
     """
     variables = state_variables
