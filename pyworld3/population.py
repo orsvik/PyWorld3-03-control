@@ -578,15 +578,16 @@ class Population:
         self._update_fpu(k) 
 
 
-        
+
         self._update_lmp(k) # need pplox from pol
-        self._update_lmf(k) # need sfpc from agr
+        self._update_lmf(k) # need sfpc and fpc from agr
         self._update_cmi(k) # need iopc from cap
         self._update_hsapc(k) # need sopc from cap
         # inside Population sector
         self._update_ehspc(k)
         self._update_lmhs(k)
         self._update_lmc(k)
+        
         self._update_le(k)
         self._update_m1(k)
         self._update_m2(k)
@@ -605,7 +606,7 @@ class Population:
         # connect World3 sectors to Population
         # industrial Output > Population
         self._update_aiopc(k) # need iopc from cap
-        self._update_diopc(k) # maybe need ipoc from cap
+        self._update_diopc(k) 
         self._update_fie(k) # need ipoc from cap
         # inside Population sector
         self._update_sfsn(k)
@@ -658,6 +659,8 @@ class Population:
 
         self.p1[k] = self.p1[j] + self.dt*(self.b[jk] - self.d1[jk] - self.mat1[jk])
 
+
+        
     @requires(["p2"])
     def _update_state_p2(self, k, j, jk):
         """
@@ -714,6 +717,10 @@ class Population:
         
         self.lmf[k] = self.lmf_f(self.fpc[k] / self.sfpc )  # Food >
         #changed table function, 2004 update
+        #if k<5:
+            #print("sfpc: ", self.sfpc)
+            #print("fpc: ",self.fpc[k] )
+            #print("lmf: ", self.lmf[k])
 
     @requires(["cmi"], ["iopc"])
     def _update_cmi(self, k):
@@ -948,8 +955,13 @@ class Population:
         """
         From step k requires: LE
         """
+        #if k<5:
+            
+            #print("le: ", self.le[k])
         
         self.fm[k] = self.fm_f(self.le[k])
+        #if k<5:
+            #print("fm: ", self.fm[k])
 
     @requires(["mtf"], ["fm"])
     def _update_mtf(self, k):

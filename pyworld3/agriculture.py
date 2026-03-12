@@ -595,61 +595,93 @@ class Agriculture:
         self._update_state_lfert(k, j, jk)
         # loop 1
         self._update_lfc(k)
-        self._update_f(k)
-        self._update_fpc(k) # need pop from pop
+        
         self._update_ifpc(k) # need iopc from cap
-        self._update_fioaa(k) 
-        self._update_tai(k) # need io from cap
+       
         self._update_dcph(k)
         # loop 1&2
+        
+        self._update_pfr(k,j)
+        self._update_falm(k)
+        self._update_ai(k, j, jk)
+
+        self._update_aiph(k)
+        self._update_lymc(k)
         self._update_mlymc(k)
+        self._update_lymap(k) # need io from cap and io70 from pol
+        
+        self._update_lyf2(k)
+        self._update_lyf(k)
+        self._update_ly(k)
+
+        self._update_alai(k)
         self._update_mpai(k)
         self._update_mpld(k)
+
+        
         self._update_fiald(k)
-        # back to loop 1
+        self._update_f(k)
+        self._update_fpc(k) # need pop from pop
+        self._update_fioaa(k) 
+        self._update_tai(k) # need io from cap
         self._update_ldr(k, kl)
         # loop 2
         self._update_cai(k)
         
-        self._update_alai(k)
+        
+        
         self._update_aic(k)
-        self._update_ai(k, j, jk)
+        
         
         # loop 6
-        self._update_cpfr(k)
-        self._update_pfr(k,j)
-        self._update_falm(k)
+        
+        
         self._update_fr(k) 
-        # back to loop 2
-        self._update_aiph(k)
-        self._update_lymc(k)
-        self._update_lyf(k)
+        self._update_cpfr(k)
 
+        # back to loop 2
+        
 
         
-        self._update_lymap(k) # need io from cap and io70 from pol
-        # loop 4
-        self._update_lfdr(k) # need pplox from pol
-        # back to loop 2
-        self._update_lfd(k, kl)
-        self._update_ly(k)
-        # loop 3
-        self._update_all(k)
-        self._update_llmy(k)
-        self._update_ler(k, kl)
-        self._update_uilpc(k) # need iopc from cap
-        self._update_uilr(k) # need pop from pop
-        self._update_lrui(k, kl)
-        # loop 5
-        self._update_lfr(k, kl)
-        self._update_lfrt(k)
+
         
         #update 2004, added yield tech
         self._update_frd(k)
         self._update_ytcm(k)
         self._update_ytcr(k,j)
         self._update_yt(k,j)
-        self._update_lyf2(k)
+        
+
+        
+
+
+        
+        self._update_lfdr(k) # need pplox from pol
+        # back to loop 2
+        self._update_lfd(k, kl)
+        
+
+        
+        
+        
+
+
+        # loop 3
+        
+        self._update_llmy(k)
+        self._update_all(k)
+
+        self._update_ler(k, kl)
+        self._update_uilpc(k) # need iopc from cap
+        self._update_uilr(k) # need pop from pop
+        self._update_lrui(k, kl)
+        # loop 5
+        
+        self._update_lfrt(k)
+        self._update_lfr(k, kl)
+        
+        
+        
 
     def run_agriculture(self):
         """

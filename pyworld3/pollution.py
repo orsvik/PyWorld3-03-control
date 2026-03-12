@@ -507,15 +507,21 @@ class Pollution:
 
         """
         self._update_pcrum(k) # need iopc from cap
+
+        self._update_pp(k,j,jk)
+
         self._update_ppolx(k)
         if alone:
             self.loopk_exogenous(k)
         self._update_ppgi(k) # need pop from pop
+
+
         self._update_ppga(k) # need aiph and al from arg
+        self._update_ppgf2(k)
         self._update_ppgf(k)
         self._update_ppgr(k)
         self._update_ppar(k)
-        self._update_pp(k,j,jk)
+        
         self._update_ahlm(k)
         self._update_ahl(k)
         self._update_ppasr(k)
@@ -523,7 +529,7 @@ class Pollution:
         self._update_pptcm(k)
         self._update_pptcr(k,j)
         self._update_ppt(k,j)
-        self._update_ppgf2(k)
+        
         self._update_pptmi(k)
         self._update_pii(k) # need io from cap
         self._update_fio70(k) # need io from cap
@@ -559,6 +565,7 @@ class Pollution:
         """
         State variable, requires previous step only  
         """
+        # not state 
         
         self.pcrum[k] = self.pcrum_f(self.iopc[k])
 

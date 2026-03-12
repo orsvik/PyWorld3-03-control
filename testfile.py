@@ -70,4 +70,4 @@ plot_world_variables(
     title="World3 control run - Resources",
 )
 plt.grid()
-#plt.show()
+plt.show()

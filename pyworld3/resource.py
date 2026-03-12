@@ -299,16 +299,25 @@ class Resource:
         self._update_fcaor(k)
         if alone:
             self.loopk_exogenous(k)
+        
+        self._update_pcrum(k) # need iopc from cap
+        
+        self._update_nruf2(k)
+        self._update_nruf(k)
+
+        self._update_nrur(k, kl) # need pop from pop
+
+
+    
         self._update_rtc(k)
         self._update_rtcm(k)
         self._update_rtcr(k)
         self._update_rt(k,j)
-        self._update_nruf2(k)
-        self._update_nruf(k)
 
 
-        self._update_pcrum(k) # need iopc from cap
-        self._update_nrur(k, kl) # need pop from pop
+
+
+
 
     def run_resource(self):
         """

@@ -254,10 +254,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self.loop0_agriculture()
             self.loop0_pollution()
             self.loop0_resource()
-        print("nrur 0:")
-        print(self.nrur[0])
-        print("nr 0:")
-        print(self.nr[0])
+        #print("nrur 0:")
+        #print(self.nrur[0])
+        #print("nr 0:")
+        #print(self.nr[0])
            
         self.verbose = False
         for k_ in range(1, self.n):
@@ -334,23 +334,12 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         # looks wrong, calling functions to parameters that don't exists?
         # some function calls missing
 
-        # from res
-        self._update_state_nr(k, j, jk)
-        #print(self.nr[k])
-        self._update_nrfr(k)
-        self._update_fcaor(k)
-        
-        
-        
-        self._update_nruf2(k)
-        self._update_nruf(k)
+       
 
 
-        if k<10:
-            print("k: ", k)
-            print(self.rtc[k])
 
-        # from pop
+
+        # from pop 1
         self._update_state_p1(k, j, jk) 
         self._update_state_p2(k, j, jk) 
         self._update_state_p3(k, j, jk)
@@ -359,7 +348,15 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_fpu(k) 
 
 
-        # from cap
+
+        # from res 1
+        self._update_state_nr(k, j, jk)
+        self._update_nrfr(k)
+        self._update_fcaor(k)
+
+
+
+        # from cap 1
         self._update_lufd(k)
         self._update_cuf(k)
         self._update_state_ic(k, j, jk)
@@ -381,75 +378,69 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_fioas(k)
         self._update_scir(k, kl)
 
+        
 
-        # from agr
+        # from pol 1
+        self._update_pcrum(k) # need iopc from cap
+        self._update_pp(k,j,jk)
+        self._update_ppolx(k)
+        self._update_ppgi(k) # need pop from pop
+
+        # from arg 1
         self._update_state_al(k, j, jk)
         self._update_state_pal(k, j, jk)
         self._update_state_uil(k, j, jk)
         self._update_state_lfert(k, j, jk)
         self._update_lfc(k)
-        self._update_f(k)
-        self._update_fpc(k) # need pop from pop
         self._update_ifpc(k) # need iopc from cap
-        self._update_fioaa(k) 
-        self._update_tai(k) # need io from cap
         self._update_dcph(k)
+        self._update_pfr(k,j)
+        self._update_falm(k)
+        self._update_ai(k, j, jk)
+        self._update_aiph(k)
+        self._update_lymc(k)
         self._update_mlymc(k)
+        self._update_lymap(k) # need io from cap and io70 from pol
+        self._update_lyf2(k)
+        self._update_lyf(k)
+        self._update_ly(k)
+        self._update_alai(k)
         self._update_mpai(k)
         self._update_mpld(k)
         self._update_fiald(k)
+        self._update_f(k)
+        self._update_fpc(k) # need pop from pop
+        self._update_fioaa(k) 
+        self._update_tai(k) # need io from cap
         self._update_ldr(k, kl)
         self._update_cai(k)
-        self._update_alai(k)
         self._update_aic(k)
-        self._update_ai(k, j, jk)
-        self._update_cpfr(k)
-        self._update_pfr(k,j)
-        self._update_falm(k)
         self._update_fr(k) 
-        self._update_aiph(k)
-        self._update_lymc(k)
-        self._update_lyf(k)
-
-        # from pol
-        self._update_pcrum(k) # need iopc from cap
-        self._update_ppolx(k)
-        self._update_ppgi(k) # need pop from pop
-        self._update_ppga(k) # need aiph and al from arg
-        self._update_ppgf(k)
-        self._update_ppgr(k)
-        self._update_ppar(k)
-        self._update_pp(k,j,jk)
-        self._update_ahlm(k)
-        self._update_ahl(k)
-        self._update_ppasr(k)
-        self._update_pptc(k)
-        self._update_pptcm(k)
-        self._update_pptcr(k,j)
-        self._update_ppt(k,j)
-        self._update_ppgf2(k)
-        self._update_pptmi(k)
-        self._update_pii(k) # need io from cap
-        self._update_fio70(k) # need io from cap
-        self._update_ymap1(k)
-        self._update_ymap2(k)
-        self._update_apfay(k)
-        self._update_abl(k)
-        self._update_ef(k) # need uil and from agr
+        self._update_cpfr(k)
+        self._update_frd(k)
+        self._update_ytcm(k)
+        self._update_ytcr(k,j)
+        self._update_yt(k,j)
+        self._update_lfdr(k) # need pplox from pol
+        self._update_lfd(k, kl)
+        self._update_llmy(k)
+        self._update_all(k)
+        self._update_ler(k, kl)
+        self._update_uilpc(k) # need iopc from cap
+        self._update_uilr(k) # need pop from pop
+        self._update_lrui(k, kl)
+        self._update_lfrt(k)
+        self._update_lfr(k, kl)
+        
+        
+        
 
 
-        # from res 2
-        self._update_pcrum(k) # need iopc from cap
-        self._update_nrur(k, kl) # need pop from pop
-        self._update_rtc(k)
-        self._update_rtcm(k)
-        self._update_rtcr(k) 
-        self._update_rt(k,j)
 
 
         # from pop 2
         self._update_lmp(k) # need pplox from pol
-        self._update_lmf(k) # need sfpc from agr
+        self._update_lmf(k) # need sfpc and fpc from agr
         self._update_cmi(k) # need iopc from cap
         self._update_hsapc(k) # need sopc from cap
         self._update_ehspc(k)
@@ -470,7 +461,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_d(k, jk)
         self._update_cdr(k)
         self._update_aiopc(k) # need iopc from cap
-        self._update_diopc(k) # maybe need ipoc from cap
+        self._update_diopc(k) 
         self._update_fie(k) # need ipoc from cap
         self._update_sfsn(k)
         self._update_frsn(k)
@@ -494,6 +485,17 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_ei(k)
         self._update_hwi(k)
 
+
+        # from res 2
+        #self._update_pcrum(k) # need iopc from cap
+        self._update_nruf2(k)
+        self._update_nruf(k)
+        self._update_nrur(k, kl) # need pop from pop    
+        self._update_rtc(k)
+        self._update_rtcm(k)
+        self._update_rtcr(k)
+        self._update_rt(k,j)
+
         # from cap 2
         self._update_fioai(k) # need fioaa from agr
         self._update_icir(k, kl)
@@ -507,26 +509,39 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_lf(k)
         self._update_luf(k)
 
-        # from agr 2
-        self._update_lymap(k) # need io from cap and io70 from pol
-        self._update_lfdr(k) # need pplox from pol
-        self._update_lfd(k, kl)
-        self._update_ly(k)
-        self._update_all(k)
-        self._update_llmy(k)
-        self._update_ler(k, kl)
-        self._update_uilpc(k) # need iopc from cap
-        self._update_uilr(k) # need pop from pop
-        self._update_lrui(k, kl)
-        self._update_lfr(k, kl)
-        self._update_lfrt(k)
-        self._update_frd(k)
-        self._update_ytcm(k)
-        self._update_ytcr(k,j)
-        self._update_yt(k,j)
-        self._update_lyf2(k)
 
-        
+        # from pol 2
+        self._update_ppga(k) # need aiph and al from arg
+        self._update_ppgf2(k)
+        self._update_ppgf(k)
+        self._update_ppgr(k)
+        self._update_ppar(k)
+        self._update_ahlm(k)
+        self._update_ahl(k)
+        self._update_ppasr(k)
+        self._update_pptc(k)
+        self._update_pptcm(k)
+        self._update_pptcr(k,j)
+        self._update_ppt(k,j)
+        self._update_pptmi(k)
+        self._update_pii(k) # need io from cap
+        self._update_fio70(k) # need io from cap
+        self._update_ymap1(k)
+        self._update_ymap2(k)
+        self._update_apfay(k)
+        self._update_abl(k)
+        self._update_ef(k) # need uil and from agr
+
+
+
+
+
+        #if k<5:
+            #print("k: ", k)
+            #print(self.ef[k])
+    
+
+
 
        
 

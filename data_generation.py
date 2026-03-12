@@ -14,6 +14,7 @@ from pyworld3 import World3
 import pandas as pd
 from tqdm import tqdm
 from matplotlib import pyplot as plt
+import time
 
 # Declare state variables of different categories
 state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery, I tried removing it here
