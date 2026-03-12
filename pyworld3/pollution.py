@@ -515,8 +515,9 @@ class Pollution:
             self.loopk_exogenous(k)
         self._update_ppgi(k) # need pop from pop
 
-        
+
         self._update_ppga(k) # need aiph and al from arg
+        self._update_ppgf2(k)
         self._update_ppgf(k)
         self._update_ppgr(k)
         self._update_ppar(k)
@@ -528,7 +529,7 @@ class Pollution:
         self._update_pptcm(k)
         self._update_pptcr(k,j)
         self._update_ppt(k,j)
-        self._update_ppgf2(k)
+        
         self._update_pptmi(k)
         self._update_pii(k) # need io from cap
         self._update_fio70(k) # need io from cap

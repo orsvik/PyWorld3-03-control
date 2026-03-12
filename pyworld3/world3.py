@@ -487,7 +487,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
 
         # from res 2
-        self._update_pcrum(k) # need iopc from cap
+        #self._update_pcrum(k) # need iopc from cap
         self._update_nruf2(k)
         self._update_nruf(k)
         self._update_nrur(k, kl) # need pop from pop    
@@ -512,6 +512,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         # from pol 2
         self._update_ppga(k) # need aiph and al from arg
+        self._update_ppgf2(k)
         self._update_ppgf(k)
         self._update_ppgr(k)
         self._update_ppar(k)
@@ -522,7 +523,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_pptcm(k)
         self._update_pptcr(k,j)
         self._update_ppt(k,j)
-        self._update_ppgf2(k)
         self._update_pptmi(k)
         self._update_pii(k) # need io from cap
         self._update_fio70(k) # need io from cap
@@ -536,9 +536,9 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
 
 
-        if k<5:
-            print("k: ", k)
-            print(self.ldr[k])
+        #if k<5:
+            #print("k: ", k)
+            #print(self.ef[k])
     
 
 
