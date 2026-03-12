@@ -35,7 +35,7 @@ world_standard.init_world3_constants()
 world_standard.init_world3_variables()
 world_standard.set_world3_table_functions()
 world_standard.set_world3_delay_functions()
-world_standard.run_world3(fast=False) # since it is only one run we let fast=False here for extra safety
+world_standard.run_world3(fast=FAST)
 
 def J_func(reward):
     """
