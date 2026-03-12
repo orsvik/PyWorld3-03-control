@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 import time
 
 # Declare state variables of different categories
-state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pcrum", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery
+state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery, I tried removing it here
 no_init_vars = ["pcrum", "time"] # state variables in PyWorld3-03 not included in init_world3_constants
 init_vars = [var for var in state_variables if (var not in no_init_vars)] # state variables in PyWorld3-03 that ARE included in init_world3_constants
 
@@ -102,11 +102,12 @@ def main_loop(reward_func, runs=100):
         reward func - function: function that takes a World3 object as input and returns an array of rewards
         runs - int: number of runs
     Returns:
-        dataframe with initial states and one cumulative reward J for each initial state(??)
+        dataframe with initial states and one cumulative reward J for each World3 instance (selected start year, end year, and initial values; no controls)
     
     Simulates runs of the World3 model without any control functions. The input is randomised with values based on the standard run.
-    25% of the runs start at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR (??)
-    25% of the runs end at a random year selected uniformly between MIN_YEAR and MAX_YEAR (??)
+    25% of the runs start at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR, and end at MAX_YEAR
+    25% of the runs end at a random year selected uniformly between MIN_YEAR + 1 and MAX_YEAR, and start at MIN_YEAR
+    The rest of the runs start at MIN_YEAR and end at MAX_YEAR.
     MIN_YEAR and MAX_YEAR are defined in the beginning of this file
     """
     variables = state_variables
@@ -115,6 +116,7 @@ def main_loop(reward_func, runs=100):
     df_list = []
 
     for run in tqdm(range(runs)):
+        # Adapt start and end year
         if run > 0.75 * runs:
             min_year = np.random.randint(MIN_YEAR + 1, MAX_YEAR)
             max_year = MAX_YEAR
@@ -124,6 +126,8 @@ def main_loop(reward_func, runs=100):
         else:
             min_year = MIN_YEAR
             max_year = MAX_YEAR
+
+        # Run model without controls but with selected start year, end year, and initial values
         world3 = World3(year_max=max_year, year_min=min_year)
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
@@ -132,27 +136,26 @@ def main_loop(reward_func, runs=100):
         world3.set_world3_delay_functions()
         world3.run_world3(fast=False) # fix fast=True at some point
 
+        # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J". The cumulative reward is saved for each time step in the run.
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
         run_df["J"] = J_func(reward_func(world3))
-        run_df = run_df[run_df['time'] <= max_year]
-        df_list.append(run_df)
+        run_df = run_df[run_df['time'] <= max_year] # clear dataframe of data where the it does not hold that the time is less than or equal to max_year
+        df_list.append(run_df) # append to list of all run dataframes
 
-    df = pd.concat(df_list, ignore_index=True)
+    # Collect all run dataframes into one common dataframe
+    df = pd.concat(df_list, ignore_index=True) # for why ignore_index=True, see pandas.concat documentation
     return df
 
 def main(chosen_reward):
     if DEBUG_MODE:
-        print("Debug mode active.")
+        print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    s=time.time()
-    df = main_loop(chosen_reward, runs=20) # use small number for now to test, limit time; 1000 was used in BT 2025
-    e=time.time()
-    print("time: ", e-s)
+    df = main_loop(chosen_reward, runs=100) # use small number for now to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
-        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False)
+        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
         print("The data was saved to file.")
 
 main(reward_hwi)
