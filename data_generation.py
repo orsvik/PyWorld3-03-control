@@ -26,6 +26,7 @@ MIN_YEAR = 1900
 MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
 DEBUG_MODE = True # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
+FAST = True
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR)
@@ -34,7 +35,7 @@ world_standard.init_world3_constants()
 world_standard.init_world3_variables()
 world_standard.set_world3_table_functions()
 world_standard.set_world3_delay_functions()
-world_standard.run_world3(fast=False)
+world_standard.run_world3(fast=False) # since it is only one run we let fast=False here for extra safety
 
 def J_func(reward):
     """
@@ -134,7 +135,7 @@ def main_loop(reward_func, runs=100):
         world3.init_world3_variables()
         world3.set_world3_table_functions()
         world3.set_world3_delay_functions()
-        world3.run_world3(fast=False) # fix fast=True at some point
+        world3.run_world3(fast=FAST)
 
         # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J". The cumulative reward is saved for each time step in the run.
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})

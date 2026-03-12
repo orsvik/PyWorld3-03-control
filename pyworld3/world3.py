@@ -279,7 +279,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         """
 
-        print("in fast")
+        if self.verbose:
+            print("in fast")
 
 
 
@@ -292,7 +293,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             self.loop0_pollution()
             self.loop0_resource()
 
-        print("done initalizing")
+        if self.verbose:
+            print("done initalizing")
         
         """
         self.redo_loop = True
@@ -312,7 +314,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         #print(self.rtc[0])
       
         for k_ in range(1, self.n):
-            # print("go loop", k_)
+            if self.verbose:
+                print("go loop", k_)
             self._loopk_world3_fast(k_-1, k_, k_-1, k_)
         
        
