@@ -706,8 +706,10 @@ class Pollution:
         """
         From step k requires: ppgf, ppgi, io
         """
-        
-        self.pii[k] = self.ppgi[k] * self.ppgf[k] / self.io[k]
+        if self.io[k]!=0:
+            self.pii[k] = self.ppgi[k] * self.ppgf[k] / self.io[k] # original
+        else:
+            self.pii[k] = self.ppgi[k] * self.ppgf[k] / 10**(-20) # added to avoid div with zero 
 
     @requires(["fio70"])
     def _update_fio70(self, k):
