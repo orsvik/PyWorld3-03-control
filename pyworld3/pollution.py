@@ -190,7 +190,7 @@ class Pollution:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def init_pollution_constants(self,pp19 = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
+    def init_pollution_constants(self,ppi = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
                                  ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0
                                  ,ahl70 = 1.5 ,pp70 = 1.36e8, dppolx = 1.2 ,tdt = 20.0, ppgf1 = 1.0):
         """
@@ -198,7 +198,7 @@ class Pollution:
         and their unit are documented above at the class level.
 
         """
-        self.pp19 = pp19
+        self.ppi = ppi
         self.apct = apct
         self.io70 = io70
         self.imef = imef
@@ -468,7 +468,7 @@ class Pollution:
 
         """
 
-        self.pp[0] = self.pp19
+        self.pp[0] = self.ppi
         self.ppt[0] = 1 
         self._update_pcrum(0)
         self._update_ppolx(0)
