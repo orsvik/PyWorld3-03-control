@@ -17,8 +17,8 @@ from matplotlib import pyplot as plt
 import time
 
 # Declare state variables of different categories
-state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery, I tried removing it here
-no_init_vars = ["pcrum", "time"] # state variables in PyWorld3-03 not included in init_world3_constants
+state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pp", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery, I tried removing it here
+no_init_vars = ["time"] # state variables in PyWorld3-03 not included in init_world3_constants
 init_vars = [var for var in state_variables if (var not in no_init_vars)] # state variables in PyWorld3-03 that ARE included in init_world3_constants
 
 # Declare constants used throughout the file
