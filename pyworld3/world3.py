@@ -144,7 +144,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                               uili=8.2e6, alln=1000, uildt=10,
                               lferti=600, ilf=600, fspd=2, sfpc = 230, dfr = 2,
                               
-                              pp19 = 2.5e7, apct = 4000.0,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
+                              ppi = 2.5e7, apct = 4000.0,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
                               ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0
                               ,ahl70 = 1.5 ,pp70 = 1.36e8, dppolx = 1.2 ,tdt = 20.0, ppgf1 = 1.0,
                               
@@ -165,7 +165,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.init_agriculture_constants(ali, pali, lfh, palt, pl, alai1, alai2,
                                         io70, lyf1, sd, uili, alln,
                                         uildt, lferti, ilf, fspd, sfpc, dfr)
-        self.init_pollution_constants(pp19 , apct , io70 ,imef ,imti ,frpm
+        self.init_pollution_constants(ppi , apct , io70 ,imef ,imti ,frpm
                                       ,ghup ,faipm ,amti ,pptd
                                       ,ahl70 ,pp70 , dppolx, tdt, ppgf1)
         self.init_resource_constants(nri, nruf1, druf, tdt)
