@@ -21,19 +21,22 @@ def icor_control(t, world, k):
     if t <= 2023:
         return world.icor[k]
     else:
-        return world.fioac[k]
+        return world.icor[k]
     
 def ifpc_control(t, world, k):
     return 1.2
 
 
+def lmhs_control(t, world, k):
+    return 1.2
+
 world3 = World3(year_max=2100)
-world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control, isopc_control=isopc_control, ifpc_control=ifpc_control)
+world3.set_world3_control(lmhs_control=lmhs_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_delay_functions()
-world3.run_world3(fast=True) # test fast=True
+world3.run_world3(fast=False) # test fast=True
 
 
 
