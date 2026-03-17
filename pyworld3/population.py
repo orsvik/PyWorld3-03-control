@@ -40,7 +40,7 @@ import numpy as np
 import math
 
 from .specials import Dlinf3, Smooth, clip, ramp, Delay3
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Population:
@@ -239,6 +239,16 @@ class Population:
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+
+    def set_population_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+            
+            
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_population_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
                                   dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,

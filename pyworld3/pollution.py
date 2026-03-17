@@ -49,7 +49,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import Dlinf3, clip, switch, Delay3
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Pollution:
@@ -189,6 +189,15 @@ class Pollution:
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+
+    def set_pollution_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+   
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_pollution_constants(self,ppi = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
                                  ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0

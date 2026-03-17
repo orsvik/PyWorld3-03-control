@@ -124,9 +124,9 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
     def set_world3_control(self, **control_functions):
         self.set_capital_control(**control_functions)
         self.set_agriculture_control(**control_functions)
-        #self.set_pollution_control(**control_functions)
-        #self.set_population_control(**control_functions)
-        #self.set_resource_control(**control_functions)
+        self.set_pollution_control(**control_functions)
+        self.set_population_control(**control_functions)
+        self.set_resource_control(**control_functions)
 
         
     def init_world3_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,

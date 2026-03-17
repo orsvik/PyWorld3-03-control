@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import clip
-from .utils import requires
+from .utils import requires, _create_control_function
 from .specials import Dlinf3
 
 
@@ -128,6 +128,16 @@ class Resource:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
+    def set_resource_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+            
+        }
+        _create_control_function(self, default_control_functions, control_functions)
+
+
     def init_resource_constants(self, nri=1e12, nruf1=1, drur=4.8e9, tdt = 20):
         """
         Initialize the constant parameters of the resource sector. Constants
@@ -138,6 +148,8 @@ class Resource:
         #2004 update, added res tech
         self.drur = drur
         self.tdt = tdt
+
+    
 
     def init_resource_variables(self):
         """
