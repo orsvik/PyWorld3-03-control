@@ -33,8 +33,11 @@ def lmhs_control(t, world, k):
 def fcaor_control(t, world, k):
     return 1
 
+def alai_control(t, world, k):
+    return 1.8
+
 world3 = World3(year_max=2100)
-world3.set_world3_control(fcaor_control=fcaor_control)
+world3.set_world3_control(alai_control=alai_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

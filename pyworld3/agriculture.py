@@ -269,13 +269,18 @@ class Agriculture:
         Define the control commands. Their units are documented above at the class level.
         """
         default_control_functions = {
+            "alai_control": lambda _: 2,
+            "lyf_control": lambda _: 1,
             "ifpc_control": lambda _: 1,
+            "lymap_control": lambda _: 1,
+            "llmy_control": lambda _: 1,
+            "fioaa_control": lambda _: 1,
  
         }
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_agriculture_constants(self, ali=0.9e9, pali=2.3e9, lfh=0.7,
-                                   palt=3.2e9, pl=0.1, alai1=2, alai2=2,
+                                   palt=3.2e9, pl=0.1, alai=2,
                                    io70=7.9e11, lyf1=1, sd=0.07,
                                    uili=8.2e6, alln=1000, uildt=10,
                                    lferti=600, ilf=600, fspd=2, sfpc = 230,
@@ -292,8 +297,7 @@ class Agriculture:
         self.palt = palt
         self.pl = pl
         # loop 2 - food from investment in agricultural inputs
-        self.alai1 = alai1
-        self.alai2 = alai2
+        self.alai = alai
         self.io70 = io70
         self.lyf1 = lyf1
         # loop 1 & 2 - the investment allocation decision
@@ -818,8 +822,9 @@ class Agriculture:
         From step k requires: nothing
         """
         
-        self.alai[k] = clip(self.alai2, self.alai1, self.time[k],
-                            self.pyear)
+
+        self.alai_control_values[k] = self.alai_control(k)
+        self.alai[k] = self.alai_control_values[k]
 
     @requires(["aiph"], ["ai", "falm", "al"])
     def _update_aiph(self, k):
