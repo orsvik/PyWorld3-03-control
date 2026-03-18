@@ -133,6 +133,8 @@ class Resource:
         Define the control commands. Their units are documented above at the class level.
         """
         default_control_functions = {
+    
+            "fcaor_control": lambda _: 1,
             
         }
         _create_control_function(self, default_control_functions, control_functions)
@@ -386,7 +388,8 @@ class Resource:
         
         self.fcaor1[k] = self.fcaor1_f(self.nrfr[k])
         self.fcaor2[k] = self.fcaor2_f(self.nrfr[k])
-        self.fcaor[k] = clip(self.fcaor2[k], self.fcaor1[k], self.time[k],
+        self.fcaor_control_values[k] = max(0, self.fcaor_control(k))
+        self.fcaor[k] = self.fcaor_control_values[k] * clip(self.fcaor2[k], self.fcaor1[k], self.time[k],
                              self.pyear_fcaor)
 
     @requires(["rtc"], ["nrur"])
