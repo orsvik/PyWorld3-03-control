@@ -199,12 +199,13 @@ class Capital:
             "icor_control": lambda _: 3,
             "fioac_control": lambda _: 0.43,
             "isopc_control": lambda _: 1.0,
+            "scor_control": lambda _: 1,
         }
+
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2,
-                               scor1=1, scor2=1, alic1=14, alic2=14,
+                               iopcd=400, lfpf=0.75, lufdt=2, alic1=14, alic2=14,
                                alsc1=20, alsc2=20, fioac_control= lambda _ : 0.43):
         """
         Initialize the constant parameters of the capital sector. Constants
@@ -217,8 +218,6 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.scor1 = scor1
-        self.scor2 = scor2
         self.alic1 = alic1
         self.alic2 = alic2
         self.alsc1 = alsc1
@@ -623,8 +622,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        
-        self.scor[k] = clip(self.scor2, self.scor1, self.time[k], self.pyear)
+        self.scor[k] = clip(self.scor_control(k), 0.01, 1)
 
     @requires(["so"], ["sc", "cuf", "scor"])
     def _update_so(self, k):

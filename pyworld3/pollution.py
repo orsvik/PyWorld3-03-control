@@ -195,6 +195,7 @@ class Pollution:
         Define the control commands. Their units are documented above at the class level.
         """
         default_control_functions = {
+            "pptd_control": lambda _: 20,
    
         }
         _create_control_function(self, default_control_functions, control_functions)

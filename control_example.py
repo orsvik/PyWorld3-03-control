@@ -45,9 +45,11 @@ def llmy_control(t, world, k):
 def fioaa_control(t, world, k):
     return 1
 
+def scor_control(t, world, k):
+    return 0.8
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(fioaa_control=fioaa_control)
+world3.set_world3_control(scor_control=scor_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
