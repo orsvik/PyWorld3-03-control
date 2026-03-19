@@ -270,7 +270,8 @@ class Agriculture:
         """
         default_control_functions = {
             "ifpc_control": lambda _: 1,
-            "alai_control": lambda _: 2
+            "alai_control": lambda _: 2,
+            "lymap_control": lambda _: 1,
  
         }
         _create_control_function(self, default_control_functions, control_functions)
@@ -342,8 +343,6 @@ class Agriculture:
         self.ly = np.full((self.n,), np.nan)
         self.lyf = np.full((self.n,), np.nan)
         self.lymap = np.full((self.n,), np.nan)
-        self.lymap1 = np.full((self.n,), np.nan)
-        self.lymap2 = np.full((self.n,), np.nan)
         self.lymc = np.full((self.n,), np.nan)
         # loop 1 & 2 - the investment allocation decision
         self.fiald = np.full((self.n,), np.nan)
@@ -425,7 +424,7 @@ class Agriculture:
             tables = json.load(fjson)
 
         func_names = ["IFPC", "FIOAA1", "FIOAA2", "DCPH",
-                      "LYMC", "LYMAP1", "LYMAP2",
+                      "LYMC", "LYMAP", 
                       "FIALD", "MLYMC",
                       "LLMY1", "LLMY2", "UILPC",
                       "LFDR",
@@ -851,16 +850,14 @@ class Agriculture:
         
         self.lyf[k] = clip(self.lyf2[k], self.lyf1, self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
 
-    @requires(["lymap1", "lymap2", "lymap"], ["io"])
+    @requires(["lymap"], ["io"])
     def _update_lymap(self, k):
         """
         From step k requires: IO
         """
         
-        self.lymap1[k] = self.lymap1_f(self.io[k] / self.io70)
-        self.lymap2[k] = self.lymap2_f(self.io[k] / self.io70)
-        self.lymap[k] = clip(self.lymap2[k], self.lymap1[k], self.time[k],
-                             self.pyear)
+        self.lymap_control_values[k] = max(0, self.lymap_control(k))
+        self.lymap[k] = self.lymap_control_values[k] * self.lymap_f(self.io[k] / self.io70)
 
     @requires(["fiald"], ["mpld", "mpai"])
     def _update_fiald(self, k):

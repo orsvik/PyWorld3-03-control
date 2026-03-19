@@ -860,24 +860,7 @@
    20.0,
    30.0
   ],
-  "y.name": "LYMAP1",
-  "y.values": [
-   1.0,
-   1.0,
-   0.7,
-   0.4
-  ]
- },
- {
-  "sector": "Agriculture",
-  "x.name": "IO/IO70",
-  "x.values": [
-   0.0,
-   10.0,
-   20.0,
-   30.0
-  ],
-  "y.name": "LYMAP2",
+  "y.name": "LYMAP",
   "y.values": [
    1.0,
    1.0,

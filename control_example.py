@@ -36,8 +36,11 @@ def fcaor_control(t, world, k):
 def alai_control(t, world, k):
     return 2.5
 
+def lymap_control(t, world, k):
+    return 0.8
+
 world3 = World3(year_max=2100)
-world3.set_world3_control()
+world3.set_world3_control(lymap_control=lymap_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
