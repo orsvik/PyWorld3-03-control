@@ -330,8 +330,6 @@ class Agriculture:
         self.f = np.full((self.n,), np.nan)
         self.fpc = np.full((self.n,), np.nan)
         self.fioaa = np.full((self.n,), np.nan)
-        self.fioaa1 = np.full((self.n,), np.nan)
-        self.fioaa2 = np.full((self.n,), np.nan)
         self.ifpc = np.full((self.n,), np.nan)
         self.ldr = np.full((self.n,), np.nan)
         self.lfc = np.full((self.n,), np.nan)
@@ -425,7 +423,7 @@ class Agriculture:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["IFPC", "FIOAA1", "FIOAA2", "DCPH",
+        func_names = ["IFPC", "FIOAA", "DCPH",
                       "LYMC", "LYMAP", 
                       "FIALD", "MLYMC",
                       "LLMY1", "LLMY2", "UILPC",
@@ -761,16 +759,15 @@ class Agriculture:
         
         self.tai[k] = self.io[k] * self.fioaa[k]
 
-    @requires(["fioaa1", "fioaa2", "fioaa"], ["fpc", "ifpc"])
+    @requires(["fioaa"], ["fpc", "ifpc"])
     def _update_fioaa(self, k):
         """
         From step k requires: FPC IFPC
         """
         
-        self.fioaa1[k] = self.fioaa1_f(self.fpc[k] / self.ifpc[k])
-        self.fioaa2[k] = self.fioaa2_f(self.fpc[k] / self.ifpc[k])
-        self.fioaa[k] = clip(self.fioaa2[k], self.fioaa1[k], self.time[k],
-                             self.pyear)
+        self.fioaa_control_values[k] = max(0,self.fioaa_control(k))
+        self.fioaa[k] = self.fioaa_control_values[k] * self.fioaa_f(self.fpc[k]/self.ifpc[k])
+
 
     @requires(["ldr"], ["tai", "fiald", "dcph"])
     def _update_ldr(self, k, kl):

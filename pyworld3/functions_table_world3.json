@@ -726,28 +726,7 @@
    2.0,
    2.5
   ],
-  "y.name": "FIOAA1",
-  "y.values": [
-   0.4,
-   0.2,
-   0.1,
-   0.025,
-   0.0,
-   0.0
-  ]
- },
- {
-  "sector": "Agriculture",
-  "x.name": "FPC/IFPC",
-  "x.values": [
-   0.0,
-   0.5,
-   1.0,
-   1.5,
-   2.0,
-   2.5
-  ],
-  "y.name": "FIOAA2",
+  "y.name": "FIOAA",
   "y.values": [
    0.4,
    0.2,
