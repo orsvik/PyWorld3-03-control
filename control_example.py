@@ -48,8 +48,11 @@ def fioaa_control(t, world, k):
 def scor_control(t, world, k):
     return 0.8
 
+def alic_control(t, world, k):
+    return 10
+
 world3 = World3(year_max=2100)
-world3.set_world3_control(scor_control=scor_control)
+world3.set_world3_control(alic_control=alic_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
