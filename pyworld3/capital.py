@@ -202,6 +202,7 @@ class Capital:
             "scor_control": lambda _: 1,
             "alic_control": lambda _: 14,
             "alsc_control": lambda _: 20,
+            "fioas_control": lambda _: 1.0,
         }
 
         _create_control_function(self, default_control_functions, control_functions)
@@ -253,8 +254,6 @@ class Capital:
         self.alsc = np.full((self.n,), np.nan)
         self.isopc = np.full((self.n,), np.nan)
         self.fioas = np.full((self.n,), np.nan)
-        self.fioas1 = np.full((self.n,), np.nan)
-        self.fioas2 = np.full((self.n,), np.nan)
         # job subsector
         self.cuf = np.full((self.n,), np.nan)
         self.j = np.full((self.n,), np.nan)
@@ -306,7 +305,7 @@ class Capital:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["FIOACV", "ISOPC", "FIOAS1", "FIOAS2",
+        func_names = ["FIOACV", "ISOPC", "FIOAS",
                       "JPICU", "JPSCU", "JPH", "CUF"]
 
         for func_name in func_names:
@@ -638,16 +637,13 @@ class Capital:
         
         self.sopc[k] = self.so[k] / self.pop[k]
 
-    @requires(["fioas1", "fioas2", "fioas"], ["sopc", "isopc"])
+    @requires(["fioas"], ["sopc", "isopc"])
     def _update_fioas(self, k):
         """
         From step k requires: SOPC ISOPC
         """
         
-        self.fioas1[k] = self.fioas1_f(self.sopc[k] / self.isopc[k])
-        self.fioas2[k] = self.fioas2_f(self.sopc[k] / self.isopc[k])
-        self.fioas[k] = clip(self.fioas2[k], self.fioas1[k], self.time[k],
-                             self.pyear)
+        self.fioas[k] = self.fioas_control(k) * self.fioas_f(self.sopc[k] / self.isopc[k])
     
     #added, 2004 update
     @requires(["cio"],["fioac","io"])

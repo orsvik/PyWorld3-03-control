@@ -54,8 +54,12 @@ def alic_control(t, world, k):
 def alsc_control(t, world, k):
     return 22
 
+
+def fioas_control(t, world, k):
+    return 1.1
+
 world3 = World3(year_max=2100)
-world3.set_world3_control(alsc_control=alsc_control)
+world3.set_world3_control(fioas_control=fioas_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

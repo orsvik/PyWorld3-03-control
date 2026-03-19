@@ -551,26 +551,7 @@
    1.5,
    2.0
   ],
-  "y.name": "FIOAS1",
-  "y.values": [
-   0.3,
-   0.2,
-   0.1,
-   0.05,
-   0.0
-  ]
- },
- {
-  "sector": "Capital",
-  "x.name": "SOPC/ISOPC",
-  "x.values": [
-   0.0,
-   0.5,
-   1.0,
-   1.5,
-   2.0
-  ],
-  "y.name": "FIOAS2",
+  "y.name": "FIOAS",
   "y.values": [
    0.3,
    0.2,
