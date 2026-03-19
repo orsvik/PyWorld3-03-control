@@ -201,13 +201,13 @@ class Capital:
             "isopc_control": lambda _: 1.0,
             "scor_control": lambda _: 1,
             "alic_control": lambda _: 14,
+            "alsc_control": lambda _: 20,
         }
 
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2,
-                               alsc1=20, alsc2=20, fioac_control= lambda _ : 0.43):
+                               iopcd=400, lfpf=0.75, lufdt=2, fioac_control= lambda _ : 0.43):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -219,8 +219,6 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.alsc1 = alsc1
-        self.alsc2 = alsc2
         self.fioac_control = fioac_control
 
     def init_capital_variables(self):
@@ -606,8 +604,8 @@ class Capital:
         """
         From step k requires: nothing
         """
+        self.alsc[k] = max(self.alsc_control(k), 0.01)
         
-        self.alsc[k] = clip(self.alsc2, self.alsc1, self.time[k], self.pyear)
 
     @requires(["scdr"], ["sc", "alsc"])
     def _update_scdr(self, k, kl):
