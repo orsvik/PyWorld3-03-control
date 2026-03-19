@@ -39,8 +39,12 @@ def alai_control(t, world, k):
 def lymap_control(t, world, k):
     return 0.8
 
+def llmy_control(t, world, k):
+    return 1
+
+
 world3 = World3(year_max=2100)
-world3.set_world3_control(lymap_control=lymap_control)
+world3.set_world3_control(llmy_control=llmy_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

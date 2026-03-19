@@ -272,6 +272,8 @@ class Agriculture:
             "ifpc_control": lambda _: 1,
             "alai_control": lambda _: 2,
             "lymap_control": lambda _: 1,
+            "llmy_control": lambda _: 1,
+            "fioaa_control": lambda _: 1
  
         }
         _create_control_function(self, default_control_functions, control_functions)
@@ -907,7 +909,8 @@ class Agriculture:
         
         self.llmy1[k] = self.llmy1_f(self.ly[k] / self.ilf)
         self.llmy2[k] = self.llmy2_f(self.ly[k] / self.ilf) #2004 update, changed json file
-        self.llmy[k] = clip(self.llmy2[k], self.llmy1[k], self.time[k],self.pyear)
+        self.llmy_control_values[k] = max(0, self.llmy_control(k))
+        self.llmy[k] = self.llmy_control_values[k] * clip(self.llmy2[k], self.llmy1[k], self.time[k],self.pyear)
 
     @requires(["ler"], ["al", "all"])
     def _update_ler(self, k, kl):
