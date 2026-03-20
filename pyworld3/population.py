@@ -242,8 +242,6 @@ class Population:
         self.time = np.arange(self.year_min, self.year_max, self.dt)
         
 
-        print('h2j \n')
-        print(self.noise)
 
     def init_population_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
                                   dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
@@ -280,8 +278,6 @@ class Population:
 
         """
 
-        print('h2j \n')
-        print(self.noise)
 
         # population sector
         self.pop = np.full((self.n,), np.nan)
