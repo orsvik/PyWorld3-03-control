@@ -1,4 +1,5 @@
 # File to generate standard deviations for noise in World3
+# Important note: we should use the same dt (and preferably n) here as the world instance we intend to use noise for
 
 import numpy as np
 from pyworld3 import World3
