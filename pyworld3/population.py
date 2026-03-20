@@ -400,6 +400,18 @@ class Population:
                                                 table["y.values"][-1]))
                     setattr(self, func_name.lower()+"_f", func)
 
+    def set_population_noise_stds(self, json_file=None):
+        """
+        
+        """
+        if json_file is None:
+            json_file = "./noise_stds.json"
+            json_file = os.path.join(os.path.dirname(__file__), json_file)
+        with open(json_file) as njson:
+            tables = json.load(njson)
+        
+        
+
     def init_exogenous_inputs(self):
         """
         Initialize all the necessary constants and variables to run the
