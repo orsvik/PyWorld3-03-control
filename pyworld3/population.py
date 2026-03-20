@@ -406,7 +406,18 @@ class Population:
         with open(json_file) as njson:
             tables = json.load(njson)
         
-        
+        var_names = ["b", "d"]
+
+        for var_name in var_names:
+            for table in tables:
+                if table["var_name"] == var_name:
+                    noise_std = table["noise_std"]
+                    noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
+                    setattr(self, var_name+"_noise", noise)
+
+        print("test noise")
+        print(self.b_noise)
+
 
     def init_exogenous_inputs(self):
         """
@@ -1056,7 +1067,7 @@ class Population:
       
         self.b[kl] = clip(self.d[k],
                           self.tf[k] * self.p2[k] * 0.5 / self.rlt,
-                          self.time[k], self.pet) + get_noise()
+                          self.time[k], self.pet) + self.b_noise[k]
 
     
     #update 2004, added:
