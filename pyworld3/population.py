@@ -230,15 +230,20 @@ class Population:
     """
 
     def __init__(self, year_min=1900, year_max=1975, dt=1, iphst=1940,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.iphst = iphst
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
         self.verbose = verbose
+        self.noise = noise
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+        
+
+        print('h2j \n')
+        print(self.noise)
 
     def init_population_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
                                   dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
@@ -249,6 +254,8 @@ class Population:
         and their unit are documented above at the class level.
 
         """
+
+
         self.p1i = p1i
         self.p2i = p2i
         self.p3i = p3i
@@ -272,6 +279,10 @@ class Population:
         the class level.
 
         """
+
+        print('h2j \n')
+        print(self.noise)
+
         # population sector
         self.pop = np.full((self.n,), np.nan)
         self.p1 = np.full((self.n,), np.nan)
@@ -471,6 +482,7 @@ class Population:
         Run a sequence to initialize the exogenous parameters (loop with k=0).
 
         """
+        
         self.loopk_exogenous(0)
 
     def loop0_population(self, alone=False):
@@ -674,7 +686,7 @@ class Population:
         """
         State variable, requires previous step only
         """
-
+        
         self.p3[k] = self.p3[j] + self.dt*(self.mat2[jk] - self.d3[jk] - self.mat3[jk])
 
     @requires(["p4"])

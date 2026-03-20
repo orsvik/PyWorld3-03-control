@@ -123,6 +123,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
         self.verbose = verbose
         self.noise = noise
+        
 
     def set_world3_control(self, **control_functions):
         self.set_capital_control(**control_functions)
