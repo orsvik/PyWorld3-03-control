@@ -1,0 +1,17 @@
+[
+{
+    "sector": "Agriculture",
+    "var_name": "ly",
+    "noise_std": 674.1904895366887
+},
+{
+    "sector": "Population",
+    "var_name": "b",
+    "noise_std": 9689475.220867008
+},
+{
+    "sector": "Population",
+    "var_name": "d",
+    "noise_std": 24636091.333242707
+}
+]
