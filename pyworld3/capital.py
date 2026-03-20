@@ -334,7 +334,7 @@ class Capital:
         with open(json_file) as njson:
             tables = json.load(njson)
         
-        var_names = []
+        var_names = ["j"]
 
         for var_name in var_names:
             for table in tables:
