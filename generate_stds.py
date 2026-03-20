@@ -11,7 +11,7 @@ import json
 MIN_YEAR = 1900
 MAX_YEAR = 2100
 AGR_VARS = {"ly": 1.0}
-POP_VARS = {"b": 0.5, "d": 0.5} # which variables to generate std for
+POP_VARS = {"b": 0.5, "d1": 0.5, "d2": 0.5, "d3": 0.5, "d4": 0.5} # variable names and scaling of std in Population sector
 
 def do_standard_run(max_year=MAX_YEAR):
     world_standard = World3(year_max=max_year)
@@ -19,6 +19,7 @@ def do_standard_run(max_year=MAX_YEAR):
     world_standard.init_world3_constants()
     world_standard.init_world3_variables()
     world_standard.set_world3_table_functions()
+    world_standard.set_world3_noise_stds()
     world_standard.set_world3_delay_functions()
     world_standard.run_world3(fast=False)
     return world_standard

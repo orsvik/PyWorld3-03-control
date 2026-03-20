@@ -11,7 +11,22 @@
 },
 {
     "sector": "Population",
-    "var_name": "d",
-    "noise_std": 24636091.333242707
+    "var_name": "d1",
+    "noise_std": 5744947.141612028
+},
+{
+    "sector": "Population",
+    "var_name": "d2",
+    "noise_std": 4671203.858063752
+},
+{
+    "sector": "Population",
+    "var_name": "d3",
+    "noise_std": 5206402.321515923
+},
+{
+    "sector": "Population",
+    "var_name": "d4",
+    "noise_std": 13934093.34888816
 }
 ]
