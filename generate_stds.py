@@ -13,7 +13,7 @@ MIN_YEAR = 1900
 MAX_YEAR = 2100
 AGR_VARS = {"ly": 1.0}
 POP_VARS = {"b": 0.5, "d1": 0.5, "d2": 0.5, "d3": 0.5, "d4": 0.5} # variable names and scaling of std in Population sector
-CAP_VARS = {"j": 1.0}
+CAP_VARS = {"j": 1e-5}
 POL_VARS = {}
 RES_VARS = {}
 
@@ -59,7 +59,7 @@ def write_to_json(json_file, data):
     with open(json_file, "w") as njson:
         njson.write(json_str)
 
-def main():
+def generate_stds_main():
     world_standard = do_standard_run()
     data = []
     add_std_data(data, world=world_standard, sect_vars=AGR_VARS, sect_name="Agriculture")
@@ -71,7 +71,6 @@ def main():
     json_file = os.path.join(os.path.dirname(__file__), json_file)
     write_to_json(json_file, data)
 
-main()
 
 """
 # save as noise_stds file

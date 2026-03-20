@@ -342,7 +342,7 @@ class Capital:
                     noise_std = table["noise_std"]
                     noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
                     setattr(self, var_name+"_noise", noise)
-
+        
     def init_exogenous_inputs(self):
         """
         Initialize all the necessary constants and variables to run the
