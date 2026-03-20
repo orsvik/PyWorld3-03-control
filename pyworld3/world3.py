@@ -225,6 +225,18 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.set_pollution_table_functions(json_file)
         self.set_resource_table_functions(json_file)
 
+    def set_world3_noise_stds(self, json_file=None):
+        """
+        giving values to the stds used for noise
+        
+        """
+
+        self.set_population_noise_stds(json_file)
+        self.set_capital_noise_stds(json_file)
+        self.set_agriculture_noise_stds(json_file)
+        self.set_pollution_noise_stds(json_file)
+        self.set_resource_noise_stds(json_file)
+
     def run_world3(self, fast=False):
         """
         Run a simulation of the World3 instance. One should initialize the
@@ -567,6 +579,7 @@ def hello_world3():
     world3.init_world3_constants()
     world3.init_world3_variables()
     world3.set_world3_table_functions()
+    world3.set_world3_noise_stds()
     world3.set_world3_delay_functions()
     world3.run_world3(fast=True)
 
