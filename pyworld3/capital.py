@@ -770,7 +770,7 @@ class Capital:
         From step k requires: PJIS PJAS PJSS
         """
         
-        self.j[k] = self.pjis[k] + self.pjas[k] + self.pjss[k]
+        self.j[k] = max(self.pjis[k] + self.pjas[k] + self.pjss[k]+self.j_noise[k], 0)
 
     @requires(["lf"], ["p2", "p3"])
     def _update_lf(self, k):
