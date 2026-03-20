@@ -178,5 +178,7 @@ def plot_world_variables(time, var_data, var_names, var_lims,
 
     plt.tight_layout()
 
-def get_noise(std, mu=0):
-    return random.normal(mu, std)
+def get_noise(check, std, mu=0):
+    if check:
+        return random.normal(mu, std)
+    return 0
