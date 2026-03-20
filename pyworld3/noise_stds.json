@@ -28,5 +28,10 @@
     "sector": "Population",
     "var_name": "d4",
     "noise_std": 13934093.34888816
+},
+{
+    "sector": "Capital",
+    "var_name": "j",
+    "noise_std": 802297089.427908
 }
 ]
