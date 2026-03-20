@@ -59,7 +59,7 @@ def main():
     data = []
     add_std_data(data, world=world_standard, sect_vars=AGR_VARS, sect_name="Agriculture")
     add_std_data(data, world=world_standard, sect_vars=POP_VARS, sect_name="Population")
-    json_file = "./noise_stds.json"
+    json_file = "pyworld3/noise_stds.json"
     json_file = os.path.join(os.path.dirname(__file__), json_file)
     write_to_json(json_file, data)
 
