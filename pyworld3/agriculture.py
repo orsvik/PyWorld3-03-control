@@ -444,6 +444,25 @@ class Agriculture:
                                                 table["y.values"][-1]))
                     setattr(self, func_name.lower()+"_f", func)
 
+    def set_agriculture_noise_stds(self, json_file=None):
+        """
+        
+        """
+        if json_file is None:
+            json_file = "./noise_stds.json"
+            json_file = os.path.join(os.path.dirname(__file__), json_file)
+        with open(json_file) as njson:
+            tables = json.load(njson)
+        
+        var_names = ["ly"]
+
+        for var_name in var_names:
+            for table in tables:
+                if table["var_name"] == var_name:
+                    noise_std = table["noise_std"]
+                    noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
+                    setattr(self, var_name+"_noise", noise)
+
     def init_exogenous_inputs(self):
         """
         Initialize all the necessary constants and variables to run the
@@ -845,7 +864,7 @@ class Agriculture:
         From step k requires: LYF LFERT LYMC LYMAP
         """
 
-        self.ly[k] = self.lyf[k] * self.lfert[k] * self.lymc[k] * self.lymap[k]
+        self.ly[k] = max(self.lyf[k] * self.lfert[k] * self.lymc[k] * self.lymap[k] + self.ly_noise[k], 0)
 
     @requires(["lyf"],["lyf2"])
     def _update_lyf(self, k):
