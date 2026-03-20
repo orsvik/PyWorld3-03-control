@@ -84,6 +84,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         The default is 1940.
     verbose : bool, optional
         print information for debugging. The default is False.
+    noise : bool, optional
+        add noise (randomness) to the model
 
     References
     ----------
@@ -106,7 +108,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
   
 
     def __init__(self, year_min=1900, year_max=2200, dt=0.5, pyear=2026, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
-                 iphst=1940, verbose=False):
+                 iphst=1940, verbose=False, noise=False):
         self.iphst = iphst
         self.pyear = pyear
         self.pyear_res_tech = pyear_res_tech
@@ -120,6 +122,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.n = int(self.length / self.dt) + 1
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
         self.verbose = verbose
+        self.noise = noise
 
     def set_world3_control(self, **control_functions):
         self.set_capital_control(**control_functions)
