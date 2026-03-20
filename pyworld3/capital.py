@@ -40,7 +40,7 @@ import numpy as np
 
 
 from .specials import Smooth, clip
-from .utils import requires,  _create_control_function
+from .utils import requires,  _create_control_function, get_noise
 
 
 class Capital:

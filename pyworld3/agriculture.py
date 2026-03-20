@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import Smooth, clip, Delay3, Dlinf3
-from .utils import requires, _create_control_function
+from .utils import requires, _create_control_function, get_noise
 
 
 class Agriculture:

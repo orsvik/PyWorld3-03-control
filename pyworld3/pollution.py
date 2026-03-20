@@ -49,7 +49,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import Dlinf3, clip, switch, Delay3
-from .utils import requires
+from .utils import requires, get_noise
 
 
 class Pollution:

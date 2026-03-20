@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import clip
-from .utils import requires
+from .utils import requires, get_noise
 from .specials import Dlinf3
 
 
