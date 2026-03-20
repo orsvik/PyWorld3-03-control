@@ -230,10 +230,9 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         giving values to the stds used for noise
         
         """
-
         self.set_population_noise_stds(json_file)
         #self.set_capital_noise_stds(json_file)
-        self.set_agriculture_noise_stds(json_file)
+        #self.set_agriculture_noise_stds(json_file)
         #self.set_pollution_noise_stds(json_file)
         #self.set_resource_noise_stds(json_file)
 

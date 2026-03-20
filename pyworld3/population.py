@@ -415,9 +415,6 @@ class Population:
                     noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
                     setattr(self, var_name+"_noise", noise)
 
-        print("test noise")
-        print(self.b_noise)
-
 
     def init_exogenous_inputs(self):
         """
