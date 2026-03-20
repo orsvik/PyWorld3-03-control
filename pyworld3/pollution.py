@@ -178,7 +178,7 @@ class Pollution:
     """
 
     def __init__(self, year_min=1900, year_max=2100, dt=1, pyear=1975, pyear_pp_tech = 4000,
-                 verbose=False):
+                 verbose=False, noise=False):
         
         self.pyear = pyear
         self.pyear_pp_tech = pyear_pp_tech
@@ -186,9 +186,11 @@ class Pollution:
         self.year_min = year_min
         self.year_max = year_max
         self.verbose = verbose
+        self.noise = noise
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+        
 
     def init_pollution_constants(self,ppi = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
                                  ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0

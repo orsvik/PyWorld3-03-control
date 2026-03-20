@@ -1044,10 +1044,12 @@ class Population:
         """
         From step k requires: D P2 TF
         """
-        
+
+      
         self.b[kl] = clip(self.d[k],
                           self.tf[k] * self.p2[k] * 0.5 / self.rlt,
-                          self.time[k], self.pet)
+                          self.time[k], self.pet) + get_noise()
+
     
     #update 2004, added:
     @requires (["lei"],["le"])

@@ -252,16 +252,18 @@ class Agriculture:
     """
 
     def __init__(self, year_min=1900, year_max=2100, dt=0.25, pyear=1975, pyear_y_tech = 4000,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.pyear = pyear
         self.pyear_y_tech = pyear_y_tech
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
-        self.verbose = False
+        self.verbose = verbose
+        self.noise = noise
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+        
 
 
     def set_agriculture_control(self, **control_functions):

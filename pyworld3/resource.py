@@ -116,7 +116,7 @@ class Resource:
     """
 
     def __init__(self, year_min=1900, year_max=2100, dt=1, pyear=1975, pyear_res_tech = 4000, pyear_fcaor = 4000,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.pyear = pyear
         self.pyear_res_tech = pyear_res_tech #2004 update, added pyear
         self.pyear_fcaor = pyear_fcaor 
@@ -124,9 +124,11 @@ class Resource:
         self.year_min = year_min
         self.year_max = year_max
         self.verbose = verbose
+        self.noise = noise
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+        
 
     def init_resource_constants(self, nri=1e12, nruf1=1, drur=4.8e9, tdt = 20):
         """

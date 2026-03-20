@@ -181,7 +181,7 @@ class Capital:
 
     # wants to remove pyear (replace with control functions)
     def __init__(self, year_min=1900, year_max=2000, dt=1, pyear=1975,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.pyear = pyear
         self.dt = dt
         self.year_min = year_min
@@ -189,7 +189,8 @@ class Capital:
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
-        self.verbose = False
+        self.verbose = noise
+        self.noise = noise
 
     def set_capital_control(self, **control_functions):
         """
