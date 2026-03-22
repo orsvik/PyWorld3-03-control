@@ -59,7 +59,8 @@ def write_to_json(json_file, data):
     with open(json_file, "w") as njson:
         njson.write(json_str)
 
-def generate_stds_main():
+# Main:
+def generate_stds():
     world_standard = do_standard_run()
     data = []
     add_std_data(data, world=world_standard, sect_vars=AGR_VARS, sect_name="Agriculture")
@@ -70,33 +71,3 @@ def generate_stds_main():
     add_std_data(data, world=world_standard, sect_vars=RES_VARS, sect_name="Resource")
     json_file = os.path.join(os.path.dirname(__file__), json_file)
     write_to_json(json_file, data)
-
-
-"""
-# save as noise_stds file
-
-json_file = "./noise_stds.json"
-json_file = os.path.join(os.path.dirname(__file__), json_file)
-
-new_data = {
-    "sector": "Population",
-    "var_name": "b",
-    "noise_std": 1
-}
-
-json_str = json.dumps(new_data, indent=1)
-
-print(json_str)
-"""
-
-"""
-with open(json_file, "a") as fjson:
-    fjson.write(json_str)
-
-with open(json_file) as fjson:
-    tables = json.load(fjson)
-
-for table in tables:
-    if table["var_name"] == "b":
-        print(table["noise_std"])
-"""

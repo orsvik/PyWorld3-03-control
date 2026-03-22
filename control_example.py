@@ -5,7 +5,7 @@ import numpy as np
 
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
-from generate_stds import generate_stds_main
+from stds_generation import generate_stds
 
 params = {"lines.linewidth": "3"}
 plt.rcParams.update(params)
@@ -29,7 +29,7 @@ def ifpc_control(t, world, k):
 
 
 
-generate_stds_main()
+generate_stds()
 world3 = World3(year_max=2100, noise=True)
 world3.set_world3_control()
 world3.init_world3_constants()
