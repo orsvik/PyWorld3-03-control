@@ -183,3 +183,12 @@ def get_noise(use_noise, std, mu=0.0, sz=1):
     if use_noise:
         return random.normal(mu, std, size=sz)
     return zeros(sz)
+
+def standard_setup(world):
+    # Set up the World3 object ´world´ with standard values, controls etc.
+    world.set_world3_control()
+    world.init_world3_constants()
+    world.init_world3_variables()
+    world.set_world3_table_functions()
+    world.set_world3_noise_stds()
+    world.set_world3_delay_functions()

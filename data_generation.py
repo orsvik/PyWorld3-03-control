@@ -16,6 +16,9 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import time
 
+from rewards import reward_hwi, reward_HSDI_ref
+from pyworld3.utils import standard_setup
+
 # Declare state variables of different categories
 state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "al", "pal", "uil", "lfert", "pp", "nr", "time"] # state variables in PyWorld3-03
 no_init_vars = ["time"] # state variables in PyWorld3-03 not included in init_world3_constants
@@ -27,15 +30,12 @@ MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 FAST = True
+NOISE = False
 
 # Standard run, used for randomising initial state
-world_standard = World3(year_max=MAX_YEAR)
-world_standard.set_world3_control()
-world_standard.init_world3_constants()
-world_standard.init_world3_variables()
-world_standard.set_world3_table_functions()
-world_standard.set_world3_delay_functions()
-world_standard.run_world3(fast=False) # FIXED AN ERROR, fast should always be False here
+world_standard = World3(year_max=MAX_YEAR, noise=NOISE)
+standard_setup(world_standard)
+world_standard.run_world3(fast=False)
 
 def J_func(reward):
     """
@@ -55,45 +55,8 @@ def J_func(reward):
 
 # -- REWARD FUNCTIONS DEFINITION ZONE --
 
-def reward_hwi(world):
-    # A reward function g being the Human Welfare Index (HWI) as defined in PyWorld3-03
-    return world.hwi
-
 def reward_HSDI(world):
-    # HSDI "approximation"
-
-    # le
-    min_le = np.min(world_standard.le) * 0.95
-    max_le = np.max(world_standard.le) * 1.05
-    I_le = (world.le - min_le) / (max_le - min_le)
-    I_le = np.clip(I_le, 0, 1)
-
-    # j/pop
-    ref_jpop = world_standard.j / world_standard.pop
-    min_jpop = np.min(ref_jpop) * 0.95
-    max_jpop = np.max(ref_jpop) * 1.05
-    jpop = world.j/world.pop
-    I_jpop = (jpop - min_jpop) / (max_jpop - min_jpop)
-    I_jpop = np.clip(I_jpop, 0, 1)
-
-    # GDP
-    min_gdp = np.min(world_standard.iopc + world_standard.sopc) * 0.95
-    max_gdp = np.max(world_standard.iopc + world_standard.sopc) * 1.05
-    world_gdp = world.iopc + world.sopc
-    I_gdp = (world_gdp - min_gdp) / (max_gdp - min_gdp)
-    I_gdp = np.clip(I_gdp, 0, 1)
-
-    # Pollution
-    # NOTE: ppol has been replaced with pp
-    min_pp_pop = np.min(world_standard.pp / world_standard.pop) * 0.95
-    max_pp_pop = np.max(world_standard.pp / world_standard.pop) * 1.05
-    pp_pop = world.pp / world.pop
-    I_pp_pop = 1 - ((pp_pop - min_pp_pop) / (max_pp_pop - min_pp_pop))
-    I_pp_pop = np.clip(I_pp_pop, 0, 1)
-
-    # HSDI
-    reward = (I_le * I_jpop * I_gdp * I_pp_pop) ** (1/4)
-    return reward
+    return reward_HSDI_ref(world, world_standard)
 
 
 # --
@@ -175,11 +138,12 @@ def main_loop(reward_func, runs=100):
             max_year = MAX_YEAR
 
         # Run model without controls but with selected start year, end year, and initial values
-        world3 = World3(year_max=MAX_YEAR, year_min=min_year)
+        world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE)
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
         world3.init_world3_variables()
         world3.set_world3_table_functions()
+        world3.set_world3_noise_stds()
         world3.set_world3_delay_functions()
         world3.run_world3(fast=FAST)
 
@@ -198,7 +162,7 @@ def main(chosen_reward):
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=1000) # use small number to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=50) # use small number to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
