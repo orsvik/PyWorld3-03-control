@@ -1,0 +1,37 @@
+[
+{
+    "sector": "Agriculture",
+    "var_name": "ly",
+    "noise_std": 674.1904895366887
+},
+{
+    "sector": "Population",
+    "var_name": "b",
+    "noise_std": 9689475.220867008
+},
+{
+    "sector": "Population",
+    "var_name": "d1",
+    "noise_std": 5744947.141612028
+},
+{
+    "sector": "Population",
+    "var_name": "d2",
+    "noise_std": 4671203.858063752
+},
+{
+    "sector": "Population",
+    "var_name": "d3",
+    "noise_std": 5206402.321515923
+},
+{
+    "sector": "Population",
+    "var_name": "d4",
+    "noise_std": 13934093.34888816
+},
+{
+    "sector": "Capital",
+    "var_name": "j",
+    "noise_std": 8022.97089427908
+}
+]

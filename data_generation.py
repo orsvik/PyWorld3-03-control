@@ -117,7 +117,7 @@ def get_mu_sigma(world, variable):
         the mean and half of the standard deviation of the variable's data points over the whole run of the World3 object world
     """
     data = getattr(world, variable)
-    mean = data[0]
+    mean = data[0] # CHANGE TO data.mean()??
     std = np.std(data) / 2 # regularisation, prevent extreme values
     return mean, std
 

@@ -84,6 +84,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         The default is 1940.
     verbose : bool, optional
         print information for debugging. The default is False.
+    noise : bool, optional
+        add noise (randomness) to the model
 
     References
     ----------
@@ -106,7 +108,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
   
 
     def __init__(self, year_min=1900, year_max=2200, dt=0.5, pyear=2026, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
-                 iphst=1940, verbose=False):
+                 iphst=1940, verbose=False, noise=False):
         self.iphst = iphst
         self.pyear = pyear
         self.pyear_res_tech = pyear_res_tech
@@ -120,6 +122,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.n = int(self.length / self.dt) + 1
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
         self.verbose = verbose
+        self.noise = noise
+        
 
     def set_world3_control(self, **control_functions):
         self.set_capital_control(**control_functions)
@@ -220,6 +224,17 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.set_agriculture_table_functions(json_file)
         self.set_pollution_table_functions(json_file)
         self.set_resource_table_functions(json_file)
+
+    def set_world3_noise_stds(self, json_file=None):
+        """
+        giving values to the stds used for noise
+        
+        """
+        self.set_population_noise_stds(json_file)
+        self.set_capital_noise_stds(json_file)
+        self.set_agriculture_noise_stds(json_file)
+        #self.set_pollution_noise_stds(json_file)
+        #self.set_resource_noise_stds(json_file)
 
     def run_world3(self, fast=False):
         """
@@ -563,6 +578,7 @@ def hello_world3():
     world3.init_world3_constants()
     world3.init_world3_variables()
     world3.set_world3_table_functions()
+    world3.set_world3_noise_stds()
     world3.set_world3_delay_functions()
     world3.run_world3(fast=True)
 

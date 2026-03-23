@@ -40,7 +40,7 @@ import numpy as np
 import math
 
 from .specials import Dlinf3, Smooth, clip, ramp, Delay3
-from .utils import requires
+from .utils import requires, get_noise
 
 
 class Population:
@@ -230,15 +230,18 @@ class Population:
     """
 
     def __init__(self, year_min=1900, year_max=1975, dt=1, iphst=1940,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.iphst = iphst
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
         self.verbose = verbose
+        self.noise = noise
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+        
+
 
     def init_population_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
                                   dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
@@ -249,6 +252,8 @@ class Population:
         and their unit are documented above at the class level.
 
         """
+
+
         self.p1i = p1i
         self.p2i = p2i
         self.p3i = p3i
@@ -272,6 +277,8 @@ class Population:
         the class level.
 
         """
+
+
         # population sector
         self.pop = np.full((self.n,), np.nan)
         self.p1 = np.full((self.n,), np.nan)
@@ -389,6 +396,26 @@ class Population:
                                                 table["y.values"][-1]))
                     setattr(self, func_name.lower()+"_f", func)
 
+    def set_population_noise_stds(self, json_file=None):
+        """
+        
+        """
+        if json_file is None:
+            json_file = "./noise_stds.json"
+            json_file = os.path.join(os.path.dirname(__file__), json_file)
+        with open(json_file) as njson:
+            tables = json.load(njson)
+        
+        var_names = ["b", "d1", "d2", "d3", "d4"]
+
+        for var_name in var_names:
+            for table in tables:
+                if table["var_name"] == var_name:
+                    noise_std = table["noise_std"]
+                    noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
+                    setattr(self, var_name+"_noise", noise)
+
+
     def init_exogenous_inputs(self):
         """
         Initialize all the necessary constants and variables to run the
@@ -471,6 +498,7 @@ class Population:
         Run a sequence to initialize the exogenous parameters (loop with k=0).
 
         """
+        
         self.loopk_exogenous(0)
 
     def loop0_population(self, alone=False):
@@ -674,7 +702,7 @@ class Population:
         """
         State variable, requires previous step only
         """
-
+        
         self.p3[k] = self.p3[j] + self.dt*(self.mat2[jk] - self.d3[jk] - self.mat3[jk])
 
     @requires(["p4"])
@@ -835,7 +863,7 @@ class Population:
         From step k requires: P1 M1
         """
         
-        self.d1[kl] = self.p1[k] * self.m1[k]
+        self.d1[kl] = max(0.001, self.p1[k] * self.m1[k] + self.d1_noise[k])
 
     @requires(["d2"], ["p2", "m2"])
     def _update_d2(self, k, kl):
@@ -843,7 +871,7 @@ class Population:
         From step k requires: P2 M2
         """
         
-        self.d2[kl] = self.p2[k] * self.m2[k]
+        self.d2[kl] = max(0.001, self.p2[k] * self.m2[k] + self.d2_noise[k])
 
     @requires(["d3"], ["p3", "m3"])
     def _update_d3(self, k, kl):
@@ -851,7 +879,7 @@ class Population:
         From step k requires: P3 M3
         """
         
-        self.d3[kl] = self.p3[k] * self.m3[k]
+        self.d3[kl] = max(0.001, self.p3[k] * self.m3[k] + self.d3_noise[k])
 
     @requires(["d4"], ["p4", "m4"])
     def _update_d4(self, k, kl):
@@ -859,7 +887,7 @@ class Population:
         From step k requires: P4 M4
         """
         
-        self.d4[kl] = self.p4[k] * self.m4[k]
+        self.d4[kl] = max(0.001, self.p4[k] * self.m4[k] + self.d4_noise[k])
 
     @requires(["d"])
     def _update_d(self, k, jk):
@@ -1032,10 +1060,12 @@ class Population:
         """
         From step k requires: D P2 TF
         """
-        
-        self.b[kl] = clip(self.d[k],
+
+      
+        self.b[kl] = max(0.001, clip(self.d[k],
                           self.tf[k] * self.p2[k] * 0.5 / self.rlt,
-                          self.time[k], self.pet)
+                          self.time[k], self.pet) + self.b_noise[k])
+
     
     #update 2004, added:
     @requires (["lei"],["le"])

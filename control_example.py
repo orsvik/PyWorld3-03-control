@@ -5,6 +5,7 @@ import numpy as np
 
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
+from stds_generation import generate_stds
 
 params = {"lines.linewidth": "3"}
 plt.rcParams.update(params)
@@ -27,13 +28,16 @@ def ifpc_control(t, world, k):
     return 1.2
 
 
-world3 = World3(year_max=2100)
-world3.set_world3_control(fioac_control=fioac_contol, icor_control=icor_control, isopc_control=isopc_control, ifpc_control=ifpc_control)
+
+generate_stds()
+world3 = World3(year_max=2100, noise=True)
+world3.set_world3_control()
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
+world3.set_world3_noise_stds()
 world3.set_world3_delay_functions()
-world3.run_world3(fast=True) # test fast=True
+world3.run_world3(fast=True) 
 
 
 
@@ -50,8 +54,8 @@ plt.grid()
 
 plot_world_variables(
     world3.time,
-    [world3.ic, world3.sc],
-    ["IC", "SC"],
+    [world3.ic, world3.sc, world3.j],
+    ["IC", "SC", "J"],
     [[0, 12e12], [0, 50e11]],
     figsize=(7, 5),
     title="World3 control run - Capital",

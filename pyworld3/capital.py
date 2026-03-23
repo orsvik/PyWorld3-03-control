@@ -40,7 +40,7 @@ import numpy as np
 
 
 from .specials import Smooth, clip
-from .utils import requires,  _create_control_function
+from .utils import requires,  _create_control_function, get_noise
 
 
 class Capital:
@@ -181,7 +181,7 @@ class Capital:
 
     # wants to remove pyear (replace with control functions)
     def __init__(self, year_min=1900, year_max=2000, dt=1, pyear=1975,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.pyear = pyear
         self.dt = dt
         self.year_min = year_min
@@ -189,7 +189,8 @@ class Capital:
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
-        self.verbose = False
+        self.verbose = noise
+        self.noise = noise
 
     def set_capital_control(self, **control_functions):
         """
@@ -322,6 +323,26 @@ class Capital:
                                                 table["y.values"][-1]))
                     setattr(self, func_name.lower()+"_f", func)
 
+
+    def set_capital_noise_stds(self, json_file=None):
+        """
+        
+        """
+        if json_file is None:
+            json_file = "./noise_stds.json"
+            json_file = os.path.join(os.path.dirname(__file__), json_file)
+        with open(json_file) as njson:
+            tables = json.load(njson)
+        
+        var_names = ["j"]
+
+        for var_name in var_names:
+            for table in tables:
+                if table["var_name"] == var_name:
+                    noise_std = table["noise_std"]
+                    noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
+                    setattr(self, var_name+"_noise", noise)
+        
     def init_exogenous_inputs(self):
         """
         Initialize all the necessary constants and variables to run the
@@ -749,7 +770,7 @@ class Capital:
         From step k requires: PJIS PJAS PJSS
         """
         
-        self.j[k] = self.pjis[k] + self.pjas[k] + self.pjss[k]
+        self.j[k] = max(self.pjis[k] + self.pjas[k] + self.pjss[k]+self.j_noise[k], 0)
 
     @requires(["lf"], ["p2", "p3"])
     def _update_lf(self, k):
