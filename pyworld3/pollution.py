@@ -195,6 +195,7 @@ class Pollution:
         Define the control commands. Their units are documented above at the class level.
         """
         default_control_functions = {
+            "ppgf_control": lambda _: 1,
             "pptd_control": lambda _: 20,
    
         }
@@ -600,8 +601,8 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        
-        self.ppgf[k] = clip(self.ppgf2[k], self.ppgf1, self.time[k], self.pyear_pp_tech)
+        self.ppgf_control_values[k] = clip(self.ppgf_control(k), 0.01, 1)
+        self.ppgf[k] = self.ppgf_control_values[k] * clip(self.ppgf2[k], self.ppgf1, self.time[k], self.pyear_pp_tech)
         
     @requires(["ppgr"],["ppgf"],["ppga"],["ppgi"])
     def _update_ppgr(self, k):
