@@ -25,10 +25,29 @@ def reward_ddiff(world, k=None, hwi_weight=1.0, ef_weight=0.25):
         return reward[k]
 
 # TODO: find good values of constants, especially hwi_limit (currently it is a purely arbitrary value)
-def reward_doughnut(world, k=None, hwi_weight=1.0, ef_weight=0.25, hwi_limit=0.7, hwi_exp=10, hwi_punish=10, ef_limit=1.1, ef_exp=10, ef_punish=10):
+# TODO: think about other variables to bake into this reward
+def reward_doughnut(world, k=None, hwi_weight=1.0, ef_weight=0.25, hwi_limit=0.55, hwi_exp=0.1, hwi_punish=10, ef_limit=1.1, ef_exp=0.025, ef_punish=10):
     # Doughnut economics approach which strongly punishes boundary transgression
     n = world.n
+    ef_matrix = np.zeros((2, n))
     reward = hwi_weight * world.hwi - ef_weight * world.ef - hwi_punish * np.exp(hwi_exp * (hwi_limit * np.ones(n) - world.hwi)) - ef_punish * np.exp(ef_exp * (world.ef - ef_limit * np.ones(n)))
+    #reward += 100000 * np.ones(n)
+    if k is None:
+        return reward
+    else:
+        return reward[k]
+
+def reward_doughnut2(world, k=None, hwi_weight=1.0, ef_weight=0.25, hwi_limit=0.55, hwi_punish=10, ef_limit=1.1, ef_punish=2.5):
+    n = world.n
+
+    hwi_matrix = np.zeros((2, n))
+    hwi_matrix[1, :] = hwi_limit * np.ones(n) - world.hwi
+
+    ef_matrix = np.zeros((2, n))
+    ef_matrix[1, :] = world.ef - ef_limit * np.ones(n)
+
+    reward = hwi_weight * world.hwi - ef_weight * world.ef - hwi_punish * np.max(hwi_matrix, axis=0) - ef_punish * np.max(ef_matrix, axis=0)
+
     if k is None:
         return reward
     else:

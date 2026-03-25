@@ -16,7 +16,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import time
 
-from rewards import reward_hwi, reward_HSDI_ref
+from rewards import *
 from pyworld3.utils import standard_setup
 
 # Declare state variables of different categories
@@ -53,7 +53,7 @@ def J_func(reward):
     return J
 
 
-# -- REWARD FUNCTIONS DEFINITION ZONE --
+# -- REWARD FUNCTIONS DEFINITION ZONE (for those who must be modified in some way) --
 
 def reward_HSDI(world):
     return reward_HSDI_ref(world, world_standard)
@@ -62,7 +62,7 @@ def reward_HSDI(world):
 # --
 
 # Select here which reward function to use throughout the rest of the file
-REWARD_FUNC = reward_HSDI
+REWARD_FUNC = reward_doughnut2
 
 
 if PLOT:

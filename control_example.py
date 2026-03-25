@@ -30,9 +30,20 @@ def ifpc_control(t, world, k):
 
 
 generate_stds()
-world3 = World3(year_max=2100, noise=True)
-standard_setup(world3)
-world3.run_world3(fast=True) 
+world3 = World3(year_max=2100, noise=False)
+world3.set_world3_control()
+world3.init_world3_constants()
+world3.init_world3_variables()
+world3.set_world3_table_functions()
+world3.set_world3_noise_stds()
+world3.set_world3_delay_functions()
+
+#standard_setup(world3)
+world3.run_world3(fast=False) 
+
+
+
+
 
 
 
@@ -49,8 +60,8 @@ plt.grid()
 
 plot_world_variables(
     world3.time,
-    [world3.ic, world3.sc, world3.j],
-    ["IC", "SC", "J"],
+    [world3.ic, world3.sc],
+    ["IC", "SC"],
     [[0, 12e12], [0, 50e11]],
     figsize=(7, 5),
     title="World3 control run - Capital",
