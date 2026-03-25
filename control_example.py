@@ -68,8 +68,14 @@ def ppgf_control(t, world, k):
     return 0.8
 
 
+def ciopc_control(t, world, k):
+    return 1
+
+
+
+
 world3 = World3(year_max=2100)
-world3.set_world3_control()
+world3.set_world3_control(ppgf_control=ppgf_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
@@ -91,8 +97,8 @@ plt.grid()
 
 plot_world_variables(
     world3.time,
-    [world3.ic, world3.sc],
-    ["IC", "SC"],
+    [world3.ic, world3.sc, world3.cio, world3.ciopc],
+    ["IC", "SC", "CIO", "CIOPC"],
     [[0, 12e12], [0, 50e11]],
     figsize=(7, 5),
     title="World3 control run - Capital",

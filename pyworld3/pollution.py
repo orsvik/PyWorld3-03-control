@@ -602,7 +602,7 @@ class Pollution:
         From step k requires: nothing
         """
         self.ppgf_control_values[k] = clip(self.ppgf_control(k), 0.01, 1)
-        self.ppgf[k] = self.ppgf_control_values[k] * clip(self.ppgf2[k], self.ppgf1, self.time[k], self.pyear_pp_tech)
+        self.ppgf[k] = clip(self.ppgf2[k], self.ppgf_control_values[k], self.time[k], self.pyear_pp_tech)
         
     @requires(["ppgr"],["ppgf"],["ppga"],["ppgi"])
     def _update_ppgr(self, k):

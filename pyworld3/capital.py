@@ -203,12 +203,14 @@ class Capital:
             "alic_control": lambda _: 14,
             "alsc_control": lambda _: 20,
             "fioas_control": lambda _: 1.0,
+            "ciopc_control": lambda _: 1,
+            "iopc_control": lambda _: 1,
         }
 
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2, fioac_control= lambda _ : 0.43):
+                               iopcd=400, lfpf=0.75, lufdt=2):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -220,7 +222,6 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.fioac_control = fioac_control
 
     def init_capital_variables(self):
         """
@@ -568,7 +569,7 @@ class Capital:
         From step k requires: IO POP
         """
         
-        self.iopc[k] = self.io[k] / self.pop[k]
+        self.iopc[k] =  self.io[k] / self.pop[k]
 
     @requires(["fioacv", "fioacc", "fioac"], ["iopc"])
     def _update_fioac(self, k):
@@ -661,7 +662,7 @@ class Capital:
         From step k requires: cio, pop
         """
         
-        self.ciopc[k] = self.cio[k] / self.pop[k]
+        self.ciopc[k] = self.ciopc_control(k) * self.cio[k] / self.pop[k]
     
     @requires(["scir"], ["io", "fioas"])
     def _update_scir(self, k, kl):
