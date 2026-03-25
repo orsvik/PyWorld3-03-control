@@ -569,7 +569,7 @@ class Capital:
         From step k requires: IO POP
         """
         
-        self.iopc[k] =  self.io[k] / self.pop[k]
+        self.iopc[k] = self.iopc_control(k) * self.io[k] / self.pop[k]
 
     @requires(["fioacv", "fioacc", "fioac"], ["iopc"])
     def _update_fioac(self, k):

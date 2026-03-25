@@ -71,11 +71,12 @@ def ppgf_control(t, world, k):
 def ciopc_control(t, world, k):
     return 1
 
-
+def iopc_control(t, world, k):
+    return 0.8
 
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(nruf_control=nruf_control)
+world3.set_world3_control(iopc_control=iopc_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
