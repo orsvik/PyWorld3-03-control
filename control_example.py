@@ -58,8 +58,12 @@ def alsc_control(t, world, k):
 def fioas_control(t, world, k):
     return 1.1
 
+def nruf_control(t, world, k):
+    return 1.2
+
+
 world3 = World3(year_max=2100)
-world3.set_world3_control(fioas_control=fioas_control)
+world3.set_world3_control(nruf_control=nruf_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
