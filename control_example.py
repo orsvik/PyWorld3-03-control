@@ -75,7 +75,7 @@ def ciopc_control(t, world, k):
 
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(ppgf_control=ppgf_control)
+world3.set_world3_control(nruf_control=nruf_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

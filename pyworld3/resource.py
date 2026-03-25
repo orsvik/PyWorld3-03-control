@@ -442,7 +442,7 @@ class Resource:
         From step k requires: nruf2
         """
         self.nruf_control_values[k] = self.nruf_control(k)
-        self.nruf[k] = self.nruf_control_values[k] * clip(self.nruf2[k], self.nruf1, self.time[k], self.pyear_res_tech)
+        self.nruf[k] = clip(self.nruf2[k], self.nruf_control_values[k], self.time[k], self.pyear_res_tech)
 
     @requires(["pcrum"], ["iopc"])
     def _update_pcrum(self, k):

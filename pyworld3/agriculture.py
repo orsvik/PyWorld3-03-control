@@ -849,7 +849,7 @@ class Agriculture:
         """
         
         self.lyf_control_values[k] = max(self.lyf_control(k), 0.01)
-        self.lyf[k] = self.lyf_control_values[k] * clip(self.lyf2[k], self.lyf1, self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
+        self.lyf[k] = clip(self.lyf2[k],  self.lyf_control_values[k], self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
 
     @requires(["lymap"], ["io"])
     def _update_lymap(self, k):
