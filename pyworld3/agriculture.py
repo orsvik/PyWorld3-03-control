@@ -273,7 +273,8 @@ class Agriculture:
             "alai_control": lambda _: 2,
             "lymap_control": lambda _: 1,
             "llmy_control": lambda _: 1,
-            "fioaa_control": lambda _: 1
+            "fioaa_control": lambda _: 1,
+            "lyf_control": lambda _: 1,
  
         }
         _create_control_function(self, default_control_functions, control_functions)
@@ -847,7 +848,8 @@ class Agriculture:
         From step k requires: LYF2
         """
         
-        self.lyf[k] = clip(self.lyf2[k], self.lyf1, self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
+        self.lyf_control_values[k] = max(self.lyf_control(k), 0.01)
+        self.lyf[k] = self.lyf_control_values[k] * clip(self.lyf2[k], self.lyf1, self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
 
     @requires(["lymap"], ["io"])
     def _update_lymap(self, k):

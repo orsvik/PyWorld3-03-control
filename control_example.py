@@ -61,9 +61,12 @@ def fioas_control(t, world, k):
 def nruf_control(t, world, k):
     return 1.2
 
+def lyf_control(t, world, k):
+    return 0.8
+
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(nruf_control=nruf_control)
+world3.set_world3_control(lyf_control=lyf_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
