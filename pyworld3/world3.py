@@ -130,7 +130,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         
     def init_world3_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
-                              dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
+                              fcest=4000, hsid=20, ieat=3, len=28,
                               lpd=20, mtfn=12, pet=4000, rlt=30, sad=20, zpgt=4000,
                               
                               ici=2.1e11, sci=1.44e11, iet=4000,
@@ -155,7 +155,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         sectors.
         #changed alln and dcfsn, 2004 update
         """
-        self.init_population_constants(p1i, p2i, p3i, p4i, dcfsn, fcest, hsid,
+        self.init_population_constants(p1i, p2i, p3i, p4i, fcest, hsid,
                                        ieat, len, lpd, mtfn, pet, rlt, sad,
                                        zpgt)
         self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt)
@@ -346,6 +346,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_state_p4(k, j, jk)
         self._update_pop(k)
         self._update_fpu(k) 
+        self._update_dcfsn(k)
 
 
 

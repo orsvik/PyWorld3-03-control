@@ -74,9 +74,13 @@ def ciopc_control(t, world, k):
 def iopc_control(t, world, k):
     return 0.8
 
+def dcfsn_control(t, world, k):
+    return 3
+
+
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(iopc_control=iopc_control)
+world3.set_world3_control()
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
