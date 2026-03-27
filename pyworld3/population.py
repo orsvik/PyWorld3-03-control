@@ -882,7 +882,7 @@ class Population:
         From step k requires: P1 M1
         """
         
-        self.d1[kl] = max(0.001, self.p1[k] * self.m1[k] + self.d1_noise[k])
+        self.d1[kl] = max(0.001, (1 + self.d1_noise[k]) * self.p1[k] * self.m1[k])
 
     @requires(["d2"], ["p2", "m2"])
     def _update_d2(self, k, kl):
@@ -890,7 +890,7 @@ class Population:
         From step k requires: P2 M2
         """
         
-        self.d2[kl] = max(0.001, self.p2[k] * self.m2[k] + self.d2_noise[k])
+        self.d2[kl] = max(0.001, (1 + self.d2_noise[k]) * self.p2[k] * self.m2[k])
 
     @requires(["d3"], ["p3", "m3"])
     def _update_d3(self, k, kl):
@@ -898,7 +898,7 @@ class Population:
         From step k requires: P3 M3
         """
         
-        self.d3[kl] = max(0.001, self.p3[k] * self.m3[k] + self.d3_noise[k])
+        self.d3[kl] = max(0.001, (1 + self.d3_noise[k]) * self.p3[k] * self.m3[k])
 
     @requires(["d4"], ["p4", "m4"])
     def _update_d4(self, k, kl):
@@ -906,7 +906,7 @@ class Population:
         From step k requires: P4 M4
         """
         
-        self.d4[kl] = max(0.001, self.p4[k] * self.m4[k] + self.d4_noise[k])
+        self.d4[kl] = max(0.001, (1 + self.d4_noise[k]) * self.p4[k] * self.m4[k])
 
     @requires(["d"])
     def _update_d(self, k, jk):
@@ -1092,9 +1092,9 @@ class Population:
         """
 
       
-        self.b[kl] = max(0.001, clip(self.d[k],
+        self.b[kl] = max(0.001, (1 + self.b_noise[k]) * clip(self.d[k],
                           self.tf[k] * self.p2[k] * 0.5 / self.rlt,
-                          self.time[k], self.pet) + self.b_noise[k])
+                          self.time[k], self.pet))
 
     
     #update 2004, added:

@@ -5,7 +5,7 @@ import numpy as np
 
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
-from stds_generation import generate_stds
+from NOT_USED_stds_generation import generate_stds
 
 params = {"lines.linewidth": "3"}
 plt.rcParams.update(params)
@@ -86,8 +86,9 @@ def dcfsn_control(t, world, k):
 
 
 
-world3 = World3(year_max=2100)
-world3.set_world3_control(dcfsn_control=dcfsn_control)
+world3 = World3(year_max=2100, noise=True)
+world3.set_world3_control()
+#world3.set_world3_control(dcfsn_control=dcfsn_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

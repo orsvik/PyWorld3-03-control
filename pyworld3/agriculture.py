@@ -861,7 +861,7 @@ class Agriculture:
         From step k requires: LYF LFERT LYMC LYMAP
         """
 
-        self.ly[k] = max(self.lyf[k] * self.lfert[k] * self.lymc[k] * self.lymap[k] + self.ly_noise[k], 0.001)
+        self.ly[k] = max((1 + self.ly_noise[k]) * self.lyf[k] * self.lfert[k] * self.lymc[k] * self.lymap[k], 0.001)
 
     @requires(["lyf"],["lyf2"])
     def _update_lyf(self, k):

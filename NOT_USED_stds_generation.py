@@ -27,7 +27,7 @@ def do_standard_run(max_year=MAX_YEAR):
     world_standard.set_world3_delay_functions()
     world_standard.run_world3(fast=False)
     return world_standard
-
+    
 def get_mu_sigma(world, variable, scale=1.0):
     data = getattr(world, variable)
     sigma = np.std(data) * scale

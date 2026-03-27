@@ -2,36 +2,36 @@
 {
     "sector": "Agriculture",
     "var_name": "ly",
-    "noise_std": 674.1904895366887
+    "noise_std": 0.01
 },
 {
     "sector": "Population",
     "var_name": "b",
-    "noise_std": 9689475.220867008
+    "noise_std": 0.3
 },
 {
     "sector": "Population",
     "var_name": "d1",
-    "noise_std": 5744947.141612028
+    "noise_std": 0.3
 },
 {
     "sector": "Population",
     "var_name": "d2",
-    "noise_std": 4671203.858063752
+    "noise_std": 0.3
 },
 {
     "sector": "Population",
     "var_name": "d3",
-    "noise_std": 5206402.321515923
+    "noise_std": 0.3
 },
 {
     "sector": "Population",
     "var_name": "d4",
-    "noise_std": 13934093.34888816
+    "noise_std": 0.3
 },
 {
     "sector": "Capital",
     "var_name": "j",
-    "noise_std": 8022.97089427908
+    "noise_std": 1e-5
 }
 ]
