@@ -38,7 +38,8 @@ import inspect
 import matplotlib.pyplot as plt
 from matplotlib.ticker import EngFormatter
 from matplotlib.image import imread
-from numpy import isnan, full, nan
+from numpy import isnan, full, nan, random, zeros
+
 
 
 verbose_debug = False
@@ -177,3 +178,8 @@ def plot_world_variables(time, var_data, var_names, var_lims,
         fig.suptitle(title, x=0.95, ha="right", fontsize=10)
 
     plt.tight_layout()
+
+def get_noise(use_noise, std, mu=0.0, sz=1):
+    if use_noise:
+        return random.normal(mu, std, size=sz)
+    return zeros(sz)

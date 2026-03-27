@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import clip
-from .utils import requires, _create_control_function
+from .utils import requires, _create_control_function, get_noise
 from .specials import Dlinf3
 
 
@@ -116,7 +116,7 @@ class Resource:
     """
 
     def __init__(self, year_min=1900, year_max=2100, dt=1, pyear=1975, pyear_res_tech = 4000, pyear_fcaor = 4000,
-                 verbose=False):
+                 verbose=False, noise=False):
         self.pyear = pyear
         self.pyear_res_tech = pyear_res_tech #2004 update, added pyear
         self.pyear_fcaor = pyear_fcaor 
@@ -124,9 +124,11 @@ class Resource:
         self.year_min = year_min
         self.year_max = year_max
         self.verbose = verbose
+        self.noise = noise
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+        
 
     def set_resource_control(self, **control_functions):
         """
@@ -219,6 +221,25 @@ class Resource:
                                     fill_value=(table["y.values"][0],
                                                 table["y.values"][-1]))
                     setattr(self, func_name.lower()+"_f", func)
+
+    def set_resources_noise_stds(self, json_file=None):
+        """
+        
+        """
+        if json_file is None:
+            json_file = "./noise_stds.json"
+            json_file = os.path.join(os.path.dirname(__file__), json_file)
+        with open(json_file) as njson:
+            tables = json.load(njson)
+        
+        var_names = []
+
+        for var_name in var_names:
+            for table in tables:
+                if table["var_name"] == var_name:
+                    noise_std = table["noise_std"]
+                    noise = get_noise(self.noise, noise_std, mu=0.0, sz=self.n)
+                    setattr(self, var_name+"_noise", noise)
 
     def init_exogenous_inputs(self):
         """

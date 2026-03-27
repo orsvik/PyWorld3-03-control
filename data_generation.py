@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 import time
 
 # Declare state variables of different categories
-state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "nr", "al", "pal", "uil", "lfert", "pp", "time"] # state variables in PyWorld3-03   # pcrum is currently a mystery, I tried removing it here
+state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "al", "pal", "uil", "lfert", "pp", "nr", "time"] # state variables in PyWorld3-03
 no_init_vars = ["time"] # state variables in PyWorld3-03 not included in init_world3_constants
 init_vars = [var for var in state_variables if (var not in no_init_vars)] # state variables in PyWorld3-03 that ARE included in init_world3_constants
 
@@ -35,7 +35,7 @@ world_standard.init_world3_constants()
 world_standard.init_world3_variables()
 world_standard.set_world3_table_functions()
 world_standard.set_world3_delay_functions()
-world_standard.run_world3(fast=FAST)
+world_standard.run_world3(fast=False) # FIXED AN ERROR, fast should always be False here
 
 def J_func(reward):
     """
@@ -86,7 +86,7 @@ def reward_HSDI(world):
     # Pollution
     # NOTE: ppol has been replaced with pp
     min_pp_pop = np.min(world_standard.pp / world_standard.pop) * 0.95
-    max_pp_pop = np.max(world_standard.pp / world_standard.pp) * 1.05
+    max_pp_pop = np.max(world_standard.pp / world_standard.pop) * 1.05
     pp_pop = world.pp / world.pop
     I_pp_pop = 1 - ((pp_pop - min_pp_pop) / (max_pp_pop - min_pp_pop))
     I_pp_pop = np.clip(I_pp_pop, 0, 1)
@@ -99,7 +99,7 @@ def reward_HSDI(world):
 # --
 
 # Select here which reward function to use throughout the rest of the file
-REWARD_FUNC = reward_hwi
+REWARD_FUNC = reward_HSDI
 
 
 if PLOT:
@@ -117,7 +117,7 @@ def get_mu_sigma(world, variable):
         the mean and half of the standard deviation of the variable's data points over the whole run of the World3 object world
     """
     data = getattr(world, variable)
-    mean = data[0]
+    mean = data[0] # CHANGE TO data.mean()??
     std = np.std(data) / 2 # regularisation, prevent extreme values
     return mean, std
 
@@ -175,7 +175,7 @@ def main_loop(reward_func, runs=100):
             max_year = MAX_YEAR
 
         # Run model without controls but with selected start year, end year, and initial values
-        world3 = World3(year_max=max_year, year_min=min_year)
+        world3 = World3(year_max=MAX_YEAR, year_min=min_year)
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
         world3.init_world3_variables()
@@ -198,7 +198,7 @@ def main(chosen_reward):
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=10) # use small number to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=1000) # use small number to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
