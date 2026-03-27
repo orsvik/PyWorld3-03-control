@@ -75,12 +75,18 @@ def iopc_control(t, world, k):
     return 0.8
 
 def dcfsn_control(t, world, k):
-    return 3
+    if t<1950:
+        return 3.3
+    if t<1975:
+        return 2.8
+    if t<2000:
+        return 2.5
+    return 2.2
 
 
 
 world3 = World3(year_max=2100)
-world3.set_world3_control()
+world3.set_world3_control(dcfsn_control=dcfsn_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
