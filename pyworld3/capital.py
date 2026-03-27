@@ -200,13 +200,18 @@ class Capital:
             "icor_control": lambda _: 3,
             "fioac_control": lambda _: 0.43,
             "isopc_control": lambda _: 1.0,
+            "scor_control": lambda _: 1,
+            "alic_control": lambda _: 14,
+            "alsc_control": lambda _: 20,
+            "fioas_control": lambda _: 1.0,
+            "ciopc_control": lambda _: 1,
+            "iopc_control": lambda _: 1,
         }
+
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2,
-                               scor1=1, scor2=1, alic1=14, alic2=14,
-                               alsc1=20, alsc2=20, fioac_control= lambda _ : 0.43):
+                               iopcd=400, lfpf=0.75, lufdt=2):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -218,13 +223,6 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.scor1 = scor1
-        self.scor2 = scor2
-        self.alic1 = alic1
-        self.alic2 = alic2
-        self.alsc1 = alsc1
-        self.alsc2 = alsc2
-        self.fioac_control = fioac_control
 
     def init_capital_variables(self):
         """
@@ -258,8 +256,6 @@ class Capital:
         self.alsc = np.full((self.n,), np.nan)
         self.isopc = np.full((self.n,), np.nan)
         self.fioas = np.full((self.n,), np.nan)
-        self.fioas1 = np.full((self.n,), np.nan)
-        self.fioas2 = np.full((self.n,), np.nan)
         # job subsector
         self.cuf = np.full((self.n,), np.nan)
         self.j = np.full((self.n,), np.nan)
@@ -311,7 +307,7 @@ class Capital:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["FIOACV", "ISOPC", "FIOAS1", "FIOAS2",
+        func_names = ["FIOACV", "ISOPC", "FIOAS",
                       "JPICU", "JPSCU", "JPH", "CUF"]
 
         for func_name in func_names:
@@ -560,7 +556,8 @@ class Capital:
         From step k requires: nothing
         """
         
-        self.alic[k] = clip(self.alic2, self.alic1, self.time[k], self.pyear)
+        self.alic_control_values[k] = max(self.alic_control(k), 0.01)
+        self.alic[k] = self.alic_control_values[k]
 
     @requires(["icdr"], ["ic", "alic"])
     def _update_icdr(self, k, kl):
@@ -593,7 +590,7 @@ class Capital:
         From step k requires: IO POP
         """
         
-        self.iopc[k] = self.io[k] / self.pop[k]
+        self.iopc[k] = self.iopc_control(k) * self.io[k] / self.pop[k]
 
     @requires(["fioacv", "fioacc", "fioac"], ["iopc"])
     def _update_fioac(self, k):
@@ -628,8 +625,8 @@ class Capital:
         """
         From step k requires: nothing
         """
+        self.alsc[k] = max(self.alsc_control(k), 0.01)
         
-        self.alsc[k] = clip(self.alsc2, self.alsc1, self.time[k], self.pyear)
 
     @requires(["scdr"], ["sc", "alsc"])
     def _update_scdr(self, k, kl):
@@ -644,8 +641,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        
-        self.scor[k] = clip(self.scor2, self.scor1, self.time[k], self.pyear)
+        self.scor[k] = clip(self.scor_control(k), 0.01, 1)
 
     @requires(["so"], ["sc", "cuf", "scor"])
     def _update_so(self, k):
@@ -663,16 +659,13 @@ class Capital:
         
         self.sopc[k] = self.so[k] / self.pop[k]
 
-    @requires(["fioas1", "fioas2", "fioas"], ["sopc", "isopc"])
+    @requires(["fioas"], ["sopc", "isopc"])
     def _update_fioas(self, k):
         """
         From step k requires: SOPC ISOPC
         """
         
-        self.fioas1[k] = self.fioas1_f(self.sopc[k] / self.isopc[k])
-        self.fioas2[k] = self.fioas2_f(self.sopc[k] / self.isopc[k])
-        self.fioas[k] = clip(self.fioas2[k], self.fioas1[k], self.time[k],
-                             self.pyear)
+        self.fioas[k] = self.fioas_control(k) * self.fioas_f(self.sopc[k] / self.isopc[k])
     
     #added, 2004 update
     @requires(["cio"],["fioac","io"])
@@ -690,7 +683,7 @@ class Capital:
         From step k requires: cio, pop
         """
         
-        self.ciopc[k] = self.cio[k] / self.pop[k]
+        self.ciopc[k] = self.ciopc_control(k) * self.cio[k] / self.pop[k]
     
     @requires(["scir"], ["io", "fioas"])
     def _update_scir(self, k, kl):
