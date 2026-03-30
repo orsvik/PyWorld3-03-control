@@ -39,7 +39,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import clip
-from .utils import requires, get_noise
+from .utils import requires, _create_control_function, get_noise
 from .specials import Dlinf3
 
 
@@ -130,6 +130,19 @@ class Resource:
         self.time = np.arange(self.year_min, self.year_max, self.dt)
         
 
+    def set_resource_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+    
+            "fcaor_control": lambda _: 1,
+            "nruf_control": lambda _: 1,
+            
+        }
+        _create_control_function(self, default_control_functions, control_functions)
+
+
     def init_resource_constants(self, nri=1e12, nruf1=1, drur=4.8e9, tdt = 20):
         """
         Initialize the constant parameters of the resource sector. Constants
@@ -140,6 +153,8 @@ class Resource:
         #2004 update, added res tech
         self.drur = drur
         self.tdt = tdt
+
+    
 
     def init_resource_variables(self):
         """
@@ -395,7 +410,8 @@ class Resource:
         
         self.fcaor1[k] = self.fcaor1_f(self.nrfr[k])
         self.fcaor2[k] = self.fcaor2_f(self.nrfr[k])
-        self.fcaor[k] = clip(self.fcaor2[k], self.fcaor1[k], self.time[k],
+        self.fcaor_control_values[k] = max(0, self.fcaor_control(k))
+        self.fcaor[k] = self.fcaor_control_values[k] * clip(self.fcaor2[k], self.fcaor1[k], self.time[k],
                              self.pyear_fcaor)
 
     @requires(["rtc"], ["nrur"])
@@ -446,8 +462,8 @@ class Resource:
         """
         From step k requires: nruf2
         """
-        
-        self.nruf[k] = clip(self.nruf2[k], self.nruf1, self.time[k], self.pyear_res_tech)
+        self.nruf_control_values[k] = self.nruf_control(k)
+        self.nruf[k] = clip(self.nruf2[k], self.nruf_control_values[k], self.time[k], self.pyear_res_tech)
 
     @requires(["pcrum"], ["iopc"])
     def _update_pcrum(self, k):

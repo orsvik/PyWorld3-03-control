@@ -40,7 +40,7 @@ import numpy as np
 import math
 
 from .specials import Dlinf3, Smooth, clip, ramp, Delay3
-from .utils import requires, get_noise
+from .utils import requires, _create_control_function, get_noise
 
 
 class Population:
@@ -243,8 +243,21 @@ class Population:
         
 
 
+    def set_population_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+        
+        "lmhs_control": lambda _: 1, 
+        "dcfsn_control": lambda _: 3.8,
+            
+        }
+
+        _create_control_function(self, default_control_functions, control_functions)
+
     def init_population_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
-                                  dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
+                                  fcest=4000, hsid=20, ieat=3, len=28,
                                   lpd=20, mtfn=12, pet=4000, rlt=30, sad=20,
                                   zpgt=4000):
         """
@@ -258,7 +271,6 @@ class Population:
         self.p2i = p2i
         self.p3i = p3i
         self.p4i = p4i
-        self.dcfsn = dcfsn
         self.fcest = fcest
         self.hsid = hsid
         self.ieat = ieat
@@ -292,6 +304,8 @@ class Population:
         self.mat1 = np.full((self.n,), np.nan)
         self.mat2 = np.full((self.n,), np.nan)
         self.mat3 = np.full((self.n,), np.nan)
+
+        self.dcfsn = np.full((self.n,), np.nan)
         # death rate subsector
         self.d = np.full((self.n,), np.nan)
         self.cdr = np.full((self.n,), np.nan)
@@ -526,6 +540,9 @@ class Population:
         # Death rate subsector
         # connect World3 sectors to Population
         # pop from initialisation
+
+        self._update_dcfsn(0) # new
+
         self._update_fpu(0)
         self._update_lmp(0)
         self._update_lmf(0)
@@ -606,7 +623,7 @@ class Population:
         self._update_fpu(k) 
 
 
-
+        self._update_dcfsn(k) # new
         self._update_lmp(k) # need pplox from pol
         self._update_lmf(k) # need sfpc and fpc from agr
         self._update_cmi(k) # need iopc from cap
@@ -782,8 +799,10 @@ class Population:
         
         self.lmhs1[k] = self.lmhs1_f(self.ehspc[k]) #changed json file, 2004 update
         self.lmhs2[k] = self.lmhs2_f(self.ehspc[k]) #changed json file, 2004 update
-        self.lmhs[k] = clip(self.lmhs2[k], self.lmhs1[k],
-                            self.time[k], self.iphst)
+        self.lmhs_control_values[k] = max(0, self.lmhs_control(k))
+        #print(self.lmhs_control(k))
+        self.lmhs[k] = self.lmhs_control_values[k] * clip(
+        self.lmhs2[k], self.lmhs1[k], self.time[k], self.iphst)
 
     @requires(["lmc"], ["cmi", "fpu"])
     def _update_lmc(self, k):
@@ -863,7 +882,7 @@ class Population:
         From step k requires: P1 M1
         """
         
-        self.d1[kl] = max(0.001, self.p1[k] * self.m1[k] + self.d1_noise[k])
+        self.d1[kl] = max(0.001, (1 + self.d1_noise[k]) * self.p1[k] * self.m1[k])
 
     @requires(["d2"], ["p2", "m2"])
     def _update_d2(self, k, kl):
@@ -871,7 +890,7 @@ class Population:
         From step k requires: P2 M2
         """
         
-        self.d2[kl] = max(0.001, self.p2[k] * self.m2[k] + self.d2_noise[k])
+        self.d2[kl] = max(0.001, (1 + self.d2_noise[k]) * self.p2[k] * self.m2[k])
 
     @requires(["d3"], ["p3", "m3"])
     def _update_d3(self, k, kl):
@@ -879,7 +898,7 @@ class Population:
         From step k requires: P3 M3
         """
         
-        self.d3[kl] = max(0.001, self.p3[k] * self.m3[k] + self.d3_noise[k])
+        self.d3[kl] = max(0.001, (1 + self.d3_noise[k]) * self.p3[k] * self.m3[k])
 
     @requires(["d4"], ["p4", "m4"])
     def _update_d4(self, k, kl):
@@ -887,7 +906,7 @@ class Population:
         From step k requires: P4 M4
         """
         
-        self.d4[kl] = max(0.001, self.p4[k] * self.m4[k] + self.d4_noise[k])
+        self.d4[kl] = max(0.001, (1 + self.d4_noise[k]) * self.p4[k] * self.m4[k])
 
     @requires(["d"])
     def _update_d(self, k, jk):
@@ -946,13 +965,24 @@ class Population:
 
         self.frsn[k] = self.frsn_f(self.fie[k])
 
+
+    @requires()
+    def _update_dcfsn(self, k):
+
+        self.dcfsn[k] = self.dcfsn_control(k)
+
+
+
     @requires(["dcfs"], ["frsn", "sfsn"])
     def _update_dcfs(self, k):
         """
         From step k requires: FRSN SFSN
         """
         
-        self.dcfs[k] = clip(2.0, self.dcfsn*self.frsn[k]*self.sfsn[k],self.time[k], self.zpgt)
+        self.dcfs[k] = clip(2.0, self.dcfsn[k]*self.frsn[k]*self.sfsn[k], self.time[k], self.zpgt)  # only self.dcfsn*self.frsn[k]*self.sfsn[k] relevant for now
+        #print(self.dcfsn[k])
+        #print(self.dcfs[k])
+     
 
     @requires(["ple"], ["le"], check_after_init=False)
     def _update_ple(self, k):
@@ -1062,9 +1092,9 @@ class Population:
         """
 
       
-        self.b[kl] = max(0.001, clip(self.d[k],
+        self.b[kl] = max(0.001, (1 + self.b_noise[k]) * clip(self.d[k],
                           self.tf[k] * self.p2[k] * 0.5 / self.rlt,
-                          self.time[k], self.pet) + self.b_noise[k])
+                          self.time[k], self.pet))
 
     
     #update 2004, added:

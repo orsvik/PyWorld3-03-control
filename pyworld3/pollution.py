@@ -49,7 +49,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 from .specials import Dlinf3, clip, switch, Delay3
-from .utils import requires, get_noise
+from .utils import requires, _create_control_function, get_noise
 
 
 class Pollution:
@@ -191,6 +191,17 @@ class Pollution:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
         
+
+    def set_pollution_control(self, **control_functions):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        default_control_functions = {
+            "ppgf_control": lambda _: 1,
+            "pptd_control": lambda _: 20,
+   
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_pollution_constants(self,ppi = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
                                  ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0
@@ -611,8 +622,8 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        
-        self.ppgf[k] = clip(self.ppgf2[k], self.ppgf1, self.time[k], self.pyear_pp_tech)
+        self.ppgf_control_values[k] = clip(self.ppgf_control(k), 0.01, 1)
+        self.ppgf[k] = clip(self.ppgf2[k], self.ppgf_control_values[k], self.time[k], self.pyear_pp_tech)
         
     @requires(["ppgr"],["ppgf"],["ppga"],["ppgi"])
     def _update_ppgr(self, k):

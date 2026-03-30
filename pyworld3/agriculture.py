@@ -272,12 +272,17 @@ class Agriculture:
         """
         default_control_functions = {
             "ifpc_control": lambda _: 1,
+            "alai_control": lambda _: 2,
+            "lymap_control": lambda _: 1,
+            "llmy_control": lambda _: 1,
+            "fioaa_control": lambda _: 1,
+            "lyf_control": lambda _: 1,
  
         }
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_agriculture_constants(self, ali=0.9e9, pali=2.3e9, lfh=0.7,
-                                   palt=3.2e9, pl=0.1, alai1=2, alai2=2,
+                                   palt=3.2e9, pl=0.1,
                                    io70=7.9e11, lyf1=1, sd=0.07,
                                    uili=8.2e6, alln=1000, uildt=10,
                                    lferti=600, ilf=600, fspd=2, sfpc = 230,
@@ -294,8 +299,6 @@ class Agriculture:
         self.palt = palt
         self.pl = pl
         # loop 2 - food from investment in agricultural inputs
-        self.alai1 = alai1
-        self.alai2 = alai2
         self.io70 = io70
         self.lyf1 = lyf1
         # loop 1 & 2 - the investment allocation decision
@@ -330,8 +333,6 @@ class Agriculture:
         self.f = np.full((self.n,), np.nan)
         self.fpc = np.full((self.n,), np.nan)
         self.fioaa = np.full((self.n,), np.nan)
-        self.fioaa1 = np.full((self.n,), np.nan)
-        self.fioaa2 = np.full((self.n,), np.nan)
         self.ifpc = np.full((self.n,), np.nan)
         self.ldr = np.full((self.n,), np.nan)
         self.lfc = np.full((self.n,), np.nan)
@@ -345,8 +346,6 @@ class Agriculture:
         self.ly = np.full((self.n,), np.nan)
         self.lyf = np.full((self.n,), np.nan)
         self.lymap = np.full((self.n,), np.nan)
-        self.lymap1 = np.full((self.n,), np.nan)
-        self.lymap2 = np.full((self.n,), np.nan)
         self.lymc = np.full((self.n,), np.nan)
         # loop 1 & 2 - the investment allocation decision
         self.fiald = np.full((self.n,), np.nan)
@@ -427,8 +426,8 @@ class Agriculture:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["IFPC", "FIOAA1", "FIOAA2", "DCPH",
-                      "LYMC", "LYMAP1", "LYMAP2",
+        func_names = ["IFPC", "FIOAA", "DCPH",
+                      "LYMC", "LYMAP", 
                       "FIALD", "MLYMC",
                       "LLMY1", "LLMY2", "UILPC",
                       "LFDR",
@@ -782,16 +781,15 @@ class Agriculture:
         
         self.tai[k] = self.io[k] * self.fioaa[k]
 
-    @requires(["fioaa1", "fioaa2", "fioaa"], ["fpc", "ifpc"])
+    @requires(["fioaa"], ["fpc", "ifpc"])
     def _update_fioaa(self, k):
         """
         From step k requires: FPC IFPC
         """
         
-        self.fioaa1[k] = self.fioaa1_f(self.fpc[k] / self.ifpc[k])
-        self.fioaa2[k] = self.fioaa2_f(self.fpc[k] / self.ifpc[k])
-        self.fioaa[k] = clip(self.fioaa2[k], self.fioaa1[k], self.time[k],
-                             self.pyear)
+        self.fioaa_control_values[k] = max(0,self.fioaa_control(k))
+        self.fioaa[k] = self.fioaa_control_values[k] * self.fioaa_f(self.fpc[k]/self.ifpc[k])
+
 
     @requires(["ldr"], ["tai", "fiald", "dcph"])
     def _update_ldr(self, k, kl):
@@ -838,9 +836,8 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        
-        self.alai[k] = clip(self.alai2, self.alai1, self.time[k],
-                            self.pyear)
+        self.alai_control_values[k]=self.alai_control(k)
+        self.alai[k] = self.alai_control_values[k]
 
     @requires(["aiph"], ["ai", "falm", "al"])
     def _update_aiph(self, k):
@@ -864,7 +861,7 @@ class Agriculture:
         From step k requires: LYF LFERT LYMC LYMAP
         """
 
-        self.ly[k] = max(self.lyf[k] * self.lfert[k] * self.lymc[k] * self.lymap[k] + self.ly_noise[k], 0.001)
+        self.ly[k] = max((1 + self.ly_noise[k]) * self.lyf[k] * self.lfert[k] * self.lymc[k] * self.lymap[k], 0.001)
 
     @requires(["lyf"],["lyf2"])
     def _update_lyf(self, k):
@@ -872,18 +869,17 @@ class Agriculture:
         From step k requires: LYF2
         """
         
-        self.lyf[k] = clip(self.lyf2[k], self.lyf1, self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
+        self.lyf_control_values[k] = max(self.lyf_control(k), 0.01)
+        self.lyf[k] = clip(self.lyf2[k],  self.lyf_control_values[k], self.time[k],self.pyear_y_tech) # 2004 update: changed lyf2 to array
 
-    @requires(["lymap1", "lymap2", "lymap"], ["io"])
+    @requires(["lymap"], ["io"])
     def _update_lymap(self, k):
         """
         From step k requires: IO
         """
         
-        self.lymap1[k] = self.lymap1_f(self.io[k] / self.io70)
-        self.lymap2[k] = self.lymap2_f(self.io[k] / self.io70)
-        self.lymap[k] = clip(self.lymap2[k], self.lymap1[k], self.time[k],
-                             self.pyear)
+        self.lymap_control_values[k] = max(0, self.lymap_control(k))
+        self.lymap[k] = self.lymap_control_values[k] * self.lymap_f(self.io[k] / self.io70)
 
     @requires(["fiald"], ["mpld", "mpai"])
     def _update_fiald(self, k):
@@ -933,7 +929,8 @@ class Agriculture:
         
         self.llmy1[k] = self.llmy1_f(self.ly[k] / self.ilf)
         self.llmy2[k] = self.llmy2_f(self.ly[k] / self.ilf) #2004 update, changed json file
-        self.llmy[k] = clip(self.llmy2[k], self.llmy1[k], self.time[k],self.pyear)
+        self.llmy_control_values[k] = max(0, self.llmy_control(k))
+        self.llmy[k] = self.llmy_control_values[k] * clip(self.llmy2[k], self.llmy1[k], self.time[k],self.pyear)
 
     @requires(["ler"], ["al", "all"])
     def _update_ler(self, k, kl):

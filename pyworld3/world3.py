@@ -128,22 +128,20 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
     def set_world3_control(self, **control_functions):
         self.set_capital_control(**control_functions)
         self.set_agriculture_control(**control_functions)
-        #self.set_pollution_control(**control_functions)
-        #self.set_population_control(**control_functions)
-        #self.set_resource_control(**control_functions)
+        self.set_pollution_control(**control_functions)
+        self.set_population_control(**control_functions)
+        self.set_resource_control(**control_functions)
 
         
     def init_world3_constants(self, p1i=65e7, p2i=70e7, p3i=19e7, p4i=6e7,
-                              dcfsn=3.8, fcest=4000, hsid=20, ieat=3, len=28,
+                              fcest=4000, hsid=20, ieat=3, len=28,
                               lpd=20, mtfn=12, pet=4000, rlt=30, sad=20, zpgt=4000,
                               
                               ici=2.1e11, sci=1.44e11, iet=4000,
                               iopcd=400, lfpf=0.75, lufdt=2,
-                              scor1=1, scor2=1, alic1=14, alic2=14,
-                              alsc1=20, alsc2=20,
                               
                               ali=0.9e9, pali=2.3e9, lfh=0.7,
-                              palt=3.2e9, pl=0.1, alai1=2, alai2=2,
+                              palt=3.2e9, pl=0.1, 
                               io70=7.9e11, lyf1=1, sd=0.07,
                               uili=8.2e6, alln=1000, uildt=10,
                               lferti=600, ilf=600, fspd=2, sfpc = 230, dfr = 2,
@@ -161,12 +159,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         sectors.
         #changed alln and dcfsn, 2004 update
         """
-        self.init_population_constants(p1i, p2i, p3i, p4i, dcfsn, fcest, hsid,
+        self.init_population_constants(p1i, p2i, p3i, p4i, fcest, hsid,
                                        ieat, len, lpd, mtfn, pet, rlt, sad,
                                        zpgt)
-        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt, scor1, scor2, alic1, alic2, alsc1,
-                                    alsc2)
-        self.init_agriculture_constants(ali, pali, lfh, palt, pl, alai1, alai2,
+        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt)
+        self.init_agriculture_constants(ali, pali, lfh, palt, pl, 
                                         io70, lyf1, sd, uili, alln,
                                         uildt, lferti, ilf, fspd, sfpc, dfr)
         self.init_pollution_constants(ppi , apct , io70 ,imef ,imti ,frpm
@@ -364,6 +361,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_state_p4(k, j, jk)
         self._update_pop(k)
         self._update_fpu(k) 
+        self._update_dcfsn(k)
 
 
 

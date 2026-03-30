@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pyworld3 import World3
-from pyworld3.utils import plot_world_variables, standard_setup
-from stds_generation import generate_stds
+from pyworld3.utils import plot_world_variables
+from NOT_USED_stds_generation import generate_stds
 
 params = {"lines.linewidth": "3"}
 plt.rcParams.update(params)
@@ -22,28 +22,79 @@ def icor_control(t, world, k):
     if t <= 2023:
         return world.icor[k]
     else:
-        return world.fioac[k]
+        return world.icor[k]
     
 def ifpc_control(t, world, k):
     return 1.2
 
 
+def lmhs_control(t, world, k):
+    return 1.2
 
-generate_stds()
-world3 = World3(year_max=2100, noise=False)
+def fcaor_control(t, world, k):
+    return 1
+
+def alai_control(t, world, k):
+    return 2.5
+
+def lymap_control(t, world, k):
+    return 0.8
+
+def llmy_control(t, world, k):
+    return 1
+
+def fioaa_control(t, world, k):
+    return 1
+
+def scor_control(t, world, k):
+    return 0.8
+
+def alic_control(t, world, k):
+    return 13
+
+def alsc_control(t, world, k):
+    return 22
+
+
+def fioas_control(t, world, k):
+    return 1.1
+
+def nruf_control(t, world, k):
+    return 1.2
+
+def lyf_control(t, world, k):
+    return 0.8
+
+def ppgf_control(t, world, k):
+    return 0.8
+
+
+def ciopc_control(t, world, k):
+    return 1
+
+def iopc_control(t, world, k):
+    return 0.8
+
+def dcfsn_control(t, world, k):
+    if t<1950:
+        return 3.3
+    if t<1975:
+        return 2.8
+    if t<2000:
+        return 2.5
+    return 2.2
+
+
+
+world3 = World3(year_max=2100, noise=True)
 world3.set_world3_control()
+#world3.set_world3_control(dcfsn_control=dcfsn_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_noise_stds()
 world3.set_world3_delay_functions()
-
-#standard_setup(world3)
-world3.run_world3(fast=False) 
-
-
-
-
+world3.run_world3(fast=False) # test fast=True
 
 
 
@@ -60,8 +111,8 @@ plt.grid()
 
 plot_world_variables(
     world3.time,
-    [world3.ic, world3.sc],
-    ["IC", "SC"],
+    [world3.ic, world3.sc, world3.cio, world3.ciopc],
+    ["IC", "SC", "CIO", "CIOPC"],
     [[0, 12e12], [0, 50e11]],
     figsize=(7, 5),
     title="World3 control run - Capital",
