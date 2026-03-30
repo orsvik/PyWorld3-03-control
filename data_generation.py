@@ -62,7 +62,7 @@ def reward_HSDI(world):
 # --
 
 # Select here which reward function to use throughout the rest of the file
-REWARD_FUNC = reward_doughnut2
+REWARD_FUNC = reward_ddiff
 
 
 if PLOT:
