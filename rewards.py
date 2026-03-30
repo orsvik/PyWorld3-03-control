@@ -27,7 +27,7 @@ def reward_inv_ef(world, k=None):
 def reward_ddiff(world, k=None, hwi_weight=1.0, ef_weight=0.25):
     # Inspired by doughnut economics
     reward = hwi_weight * world.hwi - ef_weight * world.ef
-    reward += 100
+    #reward += 100
     if k is None:
         return reward
     else:
