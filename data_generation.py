@@ -62,7 +62,7 @@ def reward_HSDI(world):
 # --
 
 # Select here which reward function to use throughout the rest of the file
-REWARD_FUNC = reward_ddiff
+REWARD_FUNC = reward_inv_ef
 
 
 if PLOT:
@@ -162,7 +162,7 @@ def main(chosen_reward):
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=1000) # use small number to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=100) # use small number to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
