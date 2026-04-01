@@ -166,7 +166,7 @@ def main(chosen_reward):
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
-        df.to_parquet(f"datasets/data_{reward_func_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
+        df.to_parquet(f"datasets/traintest/data_{reward_func_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
         print("The data was saved to file.")
 
 main(REWARD_FUNC)
