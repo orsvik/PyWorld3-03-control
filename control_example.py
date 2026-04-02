@@ -85,6 +85,7 @@ def dcfsn_control(t, world, k):
     return 2.2
 
 
+# set seed
 
 world3 = World3(year_max=2100, noise=True)
 world3.set_world3_control()
