@@ -39,6 +39,7 @@ from .capital import Capital
 from .agriculture import Agriculture
 from .pollution import Pollution
 from .resource import Resource
+from numpy import random
 
 
 
@@ -227,6 +228,12 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         giving values to the stds used for noise
         
         """
+
+        self.seed = random.randint(0, 1000)
+        random.seed(self.seed)
+
+        print(self.seed)
+
         self.set_population_noise_stds(json_file)
         self.set_capital_noise_stds(json_file)
         self.set_agriculture_noise_stds(json_file)
