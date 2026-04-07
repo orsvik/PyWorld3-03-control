@@ -109,7 +109,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
   
 
     def __init__(self, year_min=1900, year_max=2200, dt=0.5, pyear=2026, pyear_res_tech = 4000, pyear_pp_tech = 4000,pyear_fcaor = 4000, pyear_y_tech = 4000,
-                 iphst=1940, verbose=False, noise=False):
+                 iphst=1940, verbose=False, noise=False, seed=-1):
         self.iphst = iphst
         self.pyear = pyear
         self.pyear_res_tech = pyear_res_tech
@@ -124,6 +124,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
         self.verbose = verbose
         self.noise = noise
+        self.seed = -1  # if -1 it will be randomized, otherwise the input will be used
         
 
     def set_world3_control(self, **control_functions):
@@ -229,10 +230,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         
         """
 
-        self.seed = random.randint(0, 1000)
+        if self.seed < 0:
+            self.seed = random.randint(0, 1000)
         random.seed(self.seed)
 
-        print(self.seed)
+        # print(self.seed)
 
         self.set_population_noise_stds(json_file)
         self.set_capital_noise_stds(json_file)

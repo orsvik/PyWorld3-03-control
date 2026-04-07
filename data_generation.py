@@ -19,6 +19,8 @@ import time
 from rewards import *
 from pyworld3.utils import standard_setup
 
+from numpy import random
+
 # Declare state variables of different categories
 state_variables = ["p1", "p2", "p3", "p4", "ic", "sc", "al", "pal", "uil", "lfert", "pp", "nr", "time"] # state variables in PyWorld3-03
 no_init_vars = ["time"] # state variables in PyWorld3-03 not included in init_world3_constants
@@ -106,7 +108,7 @@ def generate_initial(total_runs, variables):
         array.append(dict)
     return array
 
-def main_loop(reward_func, runs=100):
+def main_loop(reward_func, runs=1000):
     """
     In:
         reward func - function: function that takes a World3 object as input and returns an array of rewards
@@ -121,9 +123,15 @@ def main_loop(reward_func, runs=100):
     MIN_YEAR and MAX_YEAR are defined in the beginning of this file
     """
     variables = state_variables
+    seed_generate = random.randint(0, 1000)
+    random.seed(seed_generate)
     initial_values = generate_initial(runs, init_vars) # init_vars defined in the beginning of this file
 
     df_list = []
+
+    seed_list_prev = [1, 3, 4, 7, 5]
+    seed_list = []
+    i=0
 
     for run in tqdm(range(runs)):
         # Adapt start and end year
@@ -138,7 +146,9 @@ def main_loop(reward_func, runs=100):
             max_year = MAX_YEAR
 
         # Run model without controls but with selected start year, end year, and initial values
-        world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE)
+        #world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=-1) # seed=-1 gived random seed, otherwise use a saved seed as input
+        print(seed_list_prev[i])
+        world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=seed_list_prev[i])
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
         world3.init_world3_variables()
@@ -146,6 +156,9 @@ def main_loop(reward_func, runs=100):
         world3.set_world3_noise_stds()
         world3.set_world3_delay_functions()
         world3.run_world3(fast=FAST)
+
+        seed_list.append(world3.seed)
+        i+=1
 
         # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J". The cumulative reward is saved for each time step in the run.
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
@@ -162,7 +175,7 @@ def main(chosen_reward):
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
     reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=1000) # use small number to test, limit time; 1000 was used in BT 2025
+    df = main_loop(chosen_reward, runs=5) # use small number to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
