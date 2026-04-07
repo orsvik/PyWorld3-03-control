@@ -200,13 +200,14 @@ class Pollution:
             "ppgf_control": lambda _: 1,
             "pptd_control": lambda _: 20,
             "pcrum_control": lambda _: 1,
+            "dppolx_control": lambda _: 1.2,
    
         }
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_pollution_constants(self,ppi = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
                                  ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 
-                                 ,ahl70 = 1.5 ,pp70 = 1.36e8, dppolx = 1.2 ,tdt = 20.0, ppgf1 = 1.0):
+                                 ,ahl70 = 1.5 ,pp70 = 1.36e8,tdt = 20.0, ppgf1 = 1.0):
         """
         Initialize the constant parameters of the pollution sector. Constants
         and their unit are documented above at the class level.
@@ -224,7 +225,6 @@ class Pollution:
         #self.pptd = pptd
         self.ahl70 = ahl70
         self.pp70 = pp70
-        self.dppolx = dppolx
         self.tdt= tdt
         self.ppgf1 = ppgf1
  
@@ -236,6 +236,7 @@ class Pollution:
 
         """
         self.apfay = np.full((self.n,), np.nan)
+        self.dppolx = np.full((self.n,), np.nan)
         self.pptd = np.full((self.n,), np.nan)
         self.ymap1 = np.full((self.n,), np.nan)
         self.ymap2 = np.full((self.n,), np.nan)
@@ -504,6 +505,7 @@ class Pollution:
 
         self.pp[0] = self.ppi
         self.ppt[0] = 1 
+        self._update_dppolx(0)
         self._update_pcrum(0)
         self._update_ppolx(0)
         self._update_pptd(0)
@@ -542,6 +544,7 @@ class Pollution:
 
         """
         self._update_pcrum(k) # need iopc from cap
+        self._update_dppolx(k)
         self._update_pptd(k)
         self._update_pp(k,j,jk)
 
@@ -611,6 +614,20 @@ class Pollution:
         """
 
         self.pptd[k] = self.pptd_control(k)
+
+    @requires()
+    def _update_dppolx(self, k):
+        """
+        From step k requires:
+        """
+
+        
+
+        self.dppolx[k] = self.dppolx_control(k)
+
+       
+
+
 
     @requires(["ppgi"],["pcrum"])
     def _update_ppgi(self, k):
@@ -698,7 +715,9 @@ class Pollution:
         From step k requires: ppolx
         """
         
-        self.pptc[k] = 1-(self.ppolx[k]/self.dppolx)
+        self.pptc[k] = 1-(self.ppolx[k]/self.dppolx[k])
+
+
 
     @requires(["pptcm"],["pptc"])
     def _update_pptcm(self, k):
@@ -708,17 +727,25 @@ class Pollution:
         
         self.pptcm[k] = self.pptcm_f(self.pptc[k]) 
 
+        
+        #print(self.pptcm[k])
+
     @requires(["pptcr"],["pptcm"])
     def _update_pptcr(self, k,j):
         """
         From step k requires: pptcm
-        """
+        
         
         if self.time[k] >= self.pyear_pp_tech:
             self.pptcr[k] = self.pptcm[j] * self.ppt[j]
 
         else:
             self.pptcr[k] = 0
+
+        """
+
+        self.pptcr[k] = self.pptcm[j] * self.ppt[j]
+        # print(self.pptcr[k])
         
     @requires(["ppt"],["pptcr"])
     def _update_ppt(self, k,j):

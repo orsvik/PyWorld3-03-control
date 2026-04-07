@@ -149,8 +149,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                               lferti=600, ilf=600, fspd=2, sfpc = 230, dfr = 2,
                               
                               ppi = 2.5e7, apct = 4000.0,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
-                              ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0
-                              ,ahl70 = 1.5 ,pp70 = 1.36e8, dppolx = 1.2 ,tdt = 20.0, ppgf1 = 1.0,
+                              ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0
+                              ,ahl70 = 1.5 ,pp70 = 1.36e8 ,tdt = 20.0, ppgf1 = 1.0,
                               
                               nri=1e12, nruf1=1, druf = 4.8e9
                               ):    
@@ -170,7 +170,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                                         uildt, lferti, ilf, fspd, sfpc, dfr)
         self.init_pollution_constants(ppi , apct , io70 ,imef ,imti ,frpm
                                       ,ghup ,faipm ,amti
-                                      ,ahl70 ,pp70 , dppolx, tdt, ppgf1)
+                                      ,ahl70 ,pp70 , tdt, ppgf1)
         self.init_resource_constants(nri, nruf1, druf, tdt)
 
     def init_world3_variables(self):
@@ -376,7 +376,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         # from res 1
         self._update_state_nr(k, j, jk)
-        self._update_pptd(k)
         self._update_nrfr(k)
         self._update_fcaor(k)
 
@@ -408,6 +407,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         # from pol 1
         self._update_pcrum(k) # need iopc from cap
+        self._update_dppolx(k)
+        self._update_pptd(k)
         self._update_pp(k,j,jk)
         self._update_ppolx(k)
         self._update_ppgi(k) # need pop from pop

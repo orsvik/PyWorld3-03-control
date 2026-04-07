@@ -84,14 +84,18 @@ def ppgf_control(t, world, k):
 def fioac_control(t, world, k):
     return 0.45
 
+def dppolx_control(t, world, k):
+    return 1.2
+    # no visable change
+
 world3 = World3(year_max=2100, noise=True)
-world3.set_world3_control(alic_control = alic_control)
+world3.set_world3_control(dppolx_control = dppolx_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_noise_stds()
 world3.set_world3_delay_functions()
-world3.run_world3(fast=False) # test fast=True
+world3.run_world3(fast=True) # test fast=True
 
 
 
