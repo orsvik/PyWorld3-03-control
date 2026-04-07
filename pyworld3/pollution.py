@@ -199,12 +199,13 @@ class Pollution:
         default_control_functions = {
             "ppgf_control": lambda _: 1,
             "pptd_control": lambda _: 20,
+            "pcrum_control": lambda _: 1,
    
         }
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_pollution_constants(self,ppi = 2.5e7, apct = 4000.0, io70 = 7.9e11 ,imef = 0.1 ,imti = 10.0 ,frpm = 0.02
-                                 ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 ,pptd = 20.0
+                                 ,ghup = 4e-9 ,faipm = 0.001 ,amti = 1.0 
                                  ,ahl70 = 1.5 ,pp70 = 1.36e8, dppolx = 1.2 ,tdt = 20.0, ppgf1 = 1.0):
         """
         Initialize the constant parameters of the pollution sector. Constants
@@ -220,7 +221,7 @@ class Pollution:
         self.ghup = ghup
         self.faipm = faipm
         self.amti = amti
-        self.pptd = pptd
+        #self.pptd = pptd
         self.ahl70 = ahl70
         self.pp70 = pp70
         self.dppolx = dppolx
@@ -235,6 +236,7 @@ class Pollution:
 
         """
         self.apfay = np.full((self.n,), np.nan)
+        self.pptd = np.full((self.n,), np.nan)
         self.ymap1 = np.full((self.n,), np.nan)
         self.ymap2 = np.full((self.n,), np.nan)
         self.fio70 = np.full((self.n,), np.nan)
@@ -504,6 +506,7 @@ class Pollution:
         self.ppt[0] = 1 
         self._update_pcrum(0)
         self._update_ppolx(0)
+        self._update_pptd(0)
         if alone:
             self.loopk_exogenous(0)
         self._update_ppgi(0)
@@ -539,7 +542,7 @@ class Pollution:
 
         """
         self._update_pcrum(k) # need iopc from cap
-
+        self._update_pptd(k)
         self._update_pp(k,j,jk)
 
         self._update_ppolx(k)
@@ -599,7 +602,15 @@ class Pollution:
         """
         # not state 
         
-        self.pcrum[k] = self.pcrum_f(self.iopc[k])
+        self.pcrum[k] = self.pcrum_control(k) * self.pcrum_f(self.iopc[k])
+
+    @requires()
+    def _update_pptd(self, k):
+        """
+        From step k requires:
+        """
+
+        self.pptd[k] = self.pptd_control(k)
 
     @requires(["ppgi"],["pcrum"])
     def _update_ppgi(self, k):
@@ -639,7 +650,7 @@ class Pollution:
         From step k requires: ppgr
         """
         
-        self.ppar[k] = self.dlinf3_ppgr(k, self.pptd)
+        self.ppar[k] = self.dlinf3_ppgr(k, self.pptd[k])
         
     @requires(["pp"],["ppar", "ppasr"])
     def _update_pp(self, k,j,jk):

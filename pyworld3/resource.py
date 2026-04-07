@@ -138,6 +138,7 @@ class Resource:
     
             "fcaor_control": lambda _: 1,
             "nruf_control": lambda _: 1,
+            "pcrum_control": lambda _: 1,
             
         }
         _create_control_function(self, default_control_functions, control_functions)
@@ -471,7 +472,9 @@ class Resource:
         From step k requires: IOPC
         """
         
-        self.pcrum[k] = self.pcrum_f(self.iopc[k])
+        self.pcrum[k] = self.pcrum_control(k) * self.pcrum_f(self.iopc[k])
+
+        
 
     @requires(["nrur"], ["pop", "pcrum", "nruf"])
     def _update_nrur(self, k, kl):

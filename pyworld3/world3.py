@@ -169,7 +169,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                                         io70, lyf1, sd, uili, alln,
                                         uildt, lferti, ilf, fspd, sfpc, dfr)
         self.init_pollution_constants(ppi , apct , io70 ,imef ,imti ,frpm
-                                      ,ghup ,faipm ,amti ,pptd
+                                      ,ghup ,faipm ,amti
                                       ,ahl70 ,pp70 , dppolx, tdt, ppgf1)
         self.init_resource_constants(nri, nruf1, druf, tdt)
 
@@ -376,6 +376,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
         # from res 1
         self._update_state_nr(k, j, jk)
+        self._update_pptd(k)
         self._update_nrfr(k)
         self._update_fcaor(k)
 

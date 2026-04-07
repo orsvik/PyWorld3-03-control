@@ -10,19 +10,13 @@ from NOT_USED_stds_generation import generate_stds
 params = {"lines.linewidth": "3"}
 plt.rcParams.update(params)
 
-def fioac_contol(t, world, k):
-    return 0.45
+
 
 def isopc_control(t, world, k):
-    if t<=2000:
-        return 1
-    return 1.2
+    return 1
 
 def icor_control(t, world, k):
-    if t <= 2023:
-        return world.icor[k]
-    else:
-        return world.icor[k]
+    return 4
     
 def ifpc_control(t, world, k):
     return 1.2
@@ -50,7 +44,7 @@ def scor_control(t, world, k):
     return 0.8
 
 def alic_control(t, world, k):
-    return 13
+    return 11
 
 def alsc_control(t, world, k):
     return 22
@@ -60,36 +54,38 @@ def fioas_control(t, world, k):
     return 1.1
 
 def nruf_control(t, world, k):
-    return 1.2
+    return 1
 
 def lyf_control(t, world, k):
     return 0.8
 
-def ppgf_control(t, world, k):
-    return 0.8
+
 
 
 def ciopc_control(t, world, k):
     return 1
 
 def iopc_control(t, world, k):
-    return 0.8
+    return 1.2
 
 def dcfsn_control(t, world, k):
-    if t<1950:
-        return 3.3
-    if t<1975:
-        return 2.8
-    if t<2000:
-        return 2.5
-    return 2.2
+    return 3.3
+
+def pcrum_control(t, world, k):
+    return 0.5
+
+def pptd_control(t, world, k):
+    return 20
+
+def ppgf_control(t, world, k):
+    return 1.2
 
 
-# set seed
+def fioac_control(t, world, k):
+    return 0.45
 
 world3 = World3(year_max=2100, noise=True)
-world3.set_world3_control()
-#world3.set_world3_control(dcfsn_control=dcfsn_control)
+world3.set_world3_control(alic_control = alic_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
