@@ -3,10 +3,13 @@ Generate training data to be used in RL file and save the data as a dataframe wi
 
 Authors of this modified file: Evelina Örsvik and Linnea Stålberg
 
-Date of modifications: March 2026
+Date of modifications: March-April 2026
 
 Note on original authors: This file is an adaptation of Emil Johansson's and Linnéa Bäckvall's training data file `data_generation.py` available at https://github.com/emilj610/pyworld3A3. It has been modified to fit our (the new authors') purposes.
 """
+
+# File naming convention: inttrainingset_data_rewardname.parquet
+# Path: datasets/traintest/rewardname
 
 # Imports
 import numpy as np
@@ -15,6 +18,8 @@ import pandas as pd
 from tqdm import tqdm
 from matplotlib import pyplot as plt
 import time
+import json
+import os
 
 from rewards import *
 from pyworld3.utils import standard_setup
@@ -31,6 +36,9 @@ PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 FAST = True
 NOISE = False
+RUNS = 10
+
+ID = "1" # training set ID
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR, noise=NOISE)
@@ -62,8 +70,15 @@ def reward_HSDI(world):
 # --
 
 # Select here which reward function to use throughout the rest of the file
-REWARD_FUNC = reward_doughnut2
+reward_dict = {"HSDI" : reward_HSDI,
+               "HWI" : reward_hwi,
+               "ddiff" : reward_ddiff,
+               "doughnut" : reward_doughnut,
+               "doughnut2" : reward_doughnut2,
+               "inv_ef" : reward_inv_ef}
 
+REWARD_NAME = "doughnut"
+REWARD_FUNC = reward_dict[REWARD_NAME]
 
 if PLOT:
     # Plots and prints for intuition
@@ -105,6 +120,31 @@ def generate_initial(total_runs, variables):
             dict[variable+"i"]=value
         array.append(dict)
     return array
+
+def write_to_json(num_runs, fast_TF, noise_TF, seed_gen=0, seed_lst=[], reward_name=REWARD_NAME, id=ID):
+    # json_file_dir should be datasets/traintest/rewardname/ID_data_rwrdname.json
+    # Must create such file before running code, so the path exists
+    json_file_dir = f"datasets/traintest/{reward_name}/{id}_data_{reward_name}.json"
+    json_str = "[\n"
+    if noise_TF:
+        data_point = {
+            "num_runs": num_runs,
+            "fast_TF": fast_TF,
+            "noise_TF": noise_TF,
+            "seed_gen": seed_gen,
+            "seed_lst": seed_lst
+        }
+    else:
+        data_point = {
+            "num_runs": num_runs,
+            "fast_TF": fast_TF,
+            "noise_TF": noise_TF
+        }
+    json_str += json.dumps(data_point, indent=4)
+    json_str += "\n]"
+    json_file = os.path.join(os.path.dirname(__file__), json_file_dir)
+    with open(json_file, "w") as njson:
+        njson.write(json_str)
 
 def main_loop(reward_func, runs=100):
     """
@@ -157,16 +197,17 @@ def main_loop(reward_func, runs=100):
     df = pd.concat(df_list, ignore_index=True) # for why ignore_index=True, see pandas.concat documentation
     return df
 
-def main(chosen_reward):
+def main(chosen_reward=REWARD_FUNC, reward_name=REWARD_NAME):
     if DEBUG_MODE:
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
-    reward_func_name = chosen_reward.__name__
-    print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=1000) # use small number to test, limit time; 1000 was used in BT 2025
+    #reward_func_name = chosen_reward.__name__
+    print(f"Creating dataset for {reward_name}")
+    df = main_loop(chosen_reward, runs=RUNS) # use small number to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
-        df.to_parquet(f"datasets/traintest/data_{reward_func_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
+        df.to_parquet(f"datasets/traintest/{reward_name}/{ID}_data_{reward_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
+        write_to_json(RUNS, FAST, NOISE, reward_name=reward_name, id=ID) # TODO: seed_gen, seed_lst
         print("The data was saved to file.")
 
-main(REWARD_FUNC)
+main(REWARD_FUNC, REWARD_NAME)
