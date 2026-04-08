@@ -123,9 +123,6 @@ def generate_initial(total_runs, variables):
         array.append(dict)
     return array
 
-<<<<<<< HEAD
-def main_loop(reward_func, runs=1000):
-=======
 def write_to_json(num_runs, fast_TF, noise_TF, seed_gen=0, seed_lst=[], reward_name=REWARD_NAME, id=ID):
     # json_file_dir should be datasets/traintest/rewardname/ID_data_rwrdname.json
     # Must create such file before running code, so the path exists
@@ -152,7 +149,6 @@ def write_to_json(num_runs, fast_TF, noise_TF, seed_gen=0, seed_lst=[], reward_n
         njson.write(json_str)
 
 def main_loop(reward_func, runs=100):
->>>>>>> 7151e7b1f4760664b7d3576d268c110bd87c3ad6
     """
     In:
         reward func - function: function that takes a World3 object as input and returns an array of rewards
@@ -191,8 +187,8 @@ def main_loop(reward_func, runs=100):
 
         # Run model without controls but with selected start year, end year, and initial values
         #world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=-1) # seed=-1 gived random seed, otherwise use a saved seed as input
-        print(seed_list_prev[i])
-        world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=seed_list_prev[i])
+        #print(seed_list_prev[i])
+        world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=seed_list_prev[i]) # TODO: fix (IndexError: list index out of range)
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
         world3.init_world3_variables()
@@ -212,25 +208,19 @@ def main_loop(reward_func, runs=100):
 
     # Collect all run dataframes into one common dataframe
     df = pd.concat(df_list, ignore_index=True) # for why ignore_index=True, see pandas.concat documentation
-    return df
+    return df, seed_generate, seed_list
 
 def main(chosen_reward=REWARD_FUNC, reward_name=REWARD_NAME):
     if DEBUG_MODE:
         print("Debug mode active. Toggle by selecting DEBUG_MODE=False in the code and restarting the Python run.")
-<<<<<<< HEAD
-    reward_func_name = chosen_reward.__name__
-    print(f"Creating dataset for {reward_func_name}")
-    df = main_loop(chosen_reward, runs=5) # use small number to test, limit time; 1000 was used in BT 2025
-=======
     #reward_func_name = chosen_reward.__name__
     print(f"Creating dataset for {reward_name}")
-    df = main_loop(chosen_reward, runs=RUNS) # use small number to test, limit time; 1000 was used in BT 2025
->>>>>>> 7151e7b1f4760664b7d3576d268c110bd87c3ad6
+    df, seed_generate, seed_list = main_loop(chosen_reward, runs=RUNS) # use small number to test, limit time; 1000 was used in BT 2025
     if DEBUG_MODE:
         print("Debug mode. Data does not get saved to file.")
     else:
         df.to_parquet(f"datasets/traintest/{reward_name}/{ID}_data_{reward_name}.parquet", index=False) # see pandas.DataFrame.to_parquet documentation for why index=False
-        write_to_json(RUNS, FAST, NOISE, reward_name=reward_name, id=ID) # TODO: seed_gen, seed_lst
+        write_to_json(RUNS, FAST, NOISE, seed_gen=seed_generate, seed_lst=seed_list, reward_name=reward_name, id=ID)
         print("The data was saved to file.")
 
 main(REWARD_FUNC, REWARD_NAME)
