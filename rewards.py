@@ -41,8 +41,6 @@ def reward_doughnut(world, k=None, hwi_weight=1.0, ef_weight=1.0, hwi_limit=0.55
     ef_impact = ef_h*np.ones(n) - np.exp(ef_alpha*(world.ef-ef_limit*np.ones(n))+ef_beta)
     hwi_impact = hwi_h*np.ones(n) - np.exp(hwi_alpha*(hwi_limit*np.ones(n)-world.hwi)+hwi_beta)
     reward = hwi_weight*hwi_impact + ef_weight*ef_impact
-    #reward = hwi_weight * world.hwi + ef_weight * world.ef - hwi_punish * np.exp(hwi_exp * (hwi_limit * np.ones(n) - world.hwi)) - ef_punish * np.exp(ef_exp * (world.ef - ef_limit * np.ones(n)))
-    #reward += 100000 * np.ones(n)
     if k is None:
         return reward
     else:

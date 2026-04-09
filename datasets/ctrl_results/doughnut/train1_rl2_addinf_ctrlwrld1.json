@@ -1,6 +1,7 @@
 [
 {
     "grid_size_1": 5,
+    "grid_size_2": 5,
     "noise": false
 }
 ]

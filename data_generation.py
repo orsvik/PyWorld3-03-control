@@ -38,9 +38,9 @@ PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 FAST = True
 NOISE = False
-RUNS = 1000
+RUNS = 10
 
-ID = "1" # training set ID
+ID = "2" # training set ID
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR, noise=NOISE)
