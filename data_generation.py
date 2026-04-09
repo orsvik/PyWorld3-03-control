@@ -148,7 +148,7 @@ def write_to_json(num_runs, fast_TF, noise_TF, seed_gen=0, seed_lst=[], reward_n
     with open(json_file, "w") as njson:
         njson.write(json_str)
 
-def main_loop(reward_func, runs=100):
+def main_loop(reward_func, runs=100, seed_list=[]):
     """
     In:
         reward func - function: function that takes a World3 object as input and returns an array of rewards
@@ -169,8 +169,6 @@ def main_loop(reward_func, runs=100):
 
     df_list = []
 
-    seed_list_prev = [1, 3, 4, 7, 5]
-    seed_list = []
     i=0
 
     for run in tqdm(range(runs)):
@@ -186,9 +184,12 @@ def main_loop(reward_func, runs=100):
             max_year = MAX_YEAR
 
         # Run model without controls but with selected start year, end year, and initial values
-        #world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=-1) # seed=-1 gived random seed, otherwise use a saved seed as input
-        #print(seed_list_prev[i])
-        world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=seed_list_prev[i]) # TODO: fix (IndexError: list index out of range)
+        if len(seed_list) < runs:
+            world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=-1) # seed=-1 gived random seed, otherwise use a saved seed as input
+            seed_list.append(world3.seed)
+        else:
+            world3 = World3(year_max=MAX_YEAR, year_min=min_year, noise=NOISE, seed=seed_list[i])
+            i+=1
         world3.set_world3_control()
         world3.init_world3_constants(**initial_values[run])
         world3.init_world3_variables()
@@ -196,9 +197,6 @@ def main_loop(reward_func, runs=100):
         world3.set_world3_noise_stds()
         world3.set_world3_delay_functions()
         world3.run_world3(fast=FAST)
-
-        seed_list.append(world3.seed)
-        i+=1
 
         # Save data (of this specific run) to dataframe in columns named after the variables, and the reward in a column named "J". The cumulative reward is saved for each time step in the run.
         run_df = pd.DataFrame({var: getattr(world3, var) for var in variables})
