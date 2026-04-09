@@ -124,7 +124,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.time = arange(self.year_min, self.year_max + self.dt, self.dt)
         self.verbose = verbose
         self.noise = noise
-        self.seed = -1  # if -1 it will be randomized, otherwise the input will be used
+        self.seed = seed  # if -1 it will be randomized, otherwise the input will be used
+
+        if self.seed < 0:
+            self.seed = random.randint(0, 1000)
+        random.seed(self.seed)
         
 
     def set_world3_control(self, **control_functions):
@@ -230,9 +234,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         
         """
 
-        if self.seed < 0:
-            self.seed = random.randint(0, 1000)
-        random.seed(self.seed)
+        
 
         # print(self.seed)
 
