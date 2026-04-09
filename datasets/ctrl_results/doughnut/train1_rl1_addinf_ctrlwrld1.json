@@ -2,7 +2,6 @@
 {
     "grid_size_1": 5,
     "grid_size_2": 5,
-    "noise": true,
-    "seed_gen_ctrl": 690
+    "noise": false
 }
 ]

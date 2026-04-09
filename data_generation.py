@@ -38,7 +38,7 @@ PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 FAST = True
 NOISE = False
-RUNS = 10
+RUNS = 1000
 
 ID = "1" # training set ID
 
