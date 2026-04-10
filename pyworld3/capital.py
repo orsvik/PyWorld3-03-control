@@ -206,6 +206,7 @@ class Capital:
             "fioas_control": lambda _: 1.0,
             "ciopc_control": lambda _: 1,
             "iopc_control": lambda _: 1,
+            "fioai_control": lambda _: 1,
         }
 
         _create_control_function(self, default_control_functions, control_functions)
@@ -665,7 +666,7 @@ class Capital:
         From step k requires: SOPC ISOPC
         """
         
-        self.fioas[k] = self.fioas_control(k) * self.fioas_f(self.sopc[k] / self.isopc[k])
+        self.fioas[k] = clip(self.fioas_control(k) * self.fioas_f(self.sopc[k] / self.isopc[k]), 0, 1)
     
     #added, 2004 update
     @requires(["cio"],["fioac","io"])
@@ -699,7 +700,7 @@ class Capital:
         From step k requires: FIOAA FIOAS FIOAC
         """
 
-        self.fioai[k] = (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k])
+        self.fioai[k] = clip(self.fioai_control(k) * (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)
 
     @requires(["icir"], ["io", "fioai"])
     def _update_icir(self, k, kl):

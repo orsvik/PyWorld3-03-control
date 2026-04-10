@@ -277,6 +277,7 @@ class Agriculture:
             "llmy_control": lambda _: 1,
             "fioaa_control": lambda _: 1,
             "lyf_control": lambda _: 1,
+            "fiald_control": lambda _: 1,
  
         }
         _create_control_function(self, default_control_functions, control_functions)
@@ -887,7 +888,7 @@ class Agriculture:
         From step k requires: MPLD MPAI
         """
         
-        self.fiald[k] = self.fiald_f(self.mpld[k] / self.mpai[k])
+        self.fiald[k] = clip(self.fiald_control(k) * self.fiald_f(self.mpld[k] / self.mpai[k]), 0, 1)
 
     @requires(["mpld"], ["ly", "dcph"])
     def _update_mpld(self, k):

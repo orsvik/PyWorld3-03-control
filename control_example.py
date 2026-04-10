@@ -88,8 +88,16 @@ def dppolx_control(t, world, k):
     return 1.2
     # no visable change
 
+
+def fioai_control(t, world, k):
+    return 0.9
+
+
+def fiald_control(t, world, k):
+    return 1.1
+
 world3 = World3(year_max=2100, noise=True)
-world3.set_world3_control(dppolx_control = dppolx_control)
+world3.set_world3_control()
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
