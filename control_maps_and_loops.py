@@ -1,5 +1,47 @@
 # Help functions used in reinforcement_learning.ipynb and plotter.ipynb
 
+
+# -- LOOPS --
+
+def loop0(world):
+    """
+    In:
+        world - World3 object
+
+    Run loop 0
+    """
+    world.redo_loop = True
+    while world.redo_loop:  # unsorted updates at initialisation
+        world.redo_loop = False
+        world.loop0_population()
+        world.loop0_capital()
+        world.loop0_agriculture()
+        world.loop0_pollution()
+        world.loop0_resource()
+
+def loopk(world, k, verbose=False):
+    """
+    In:
+        world   - World3 object
+        k       - int: time step
+        verbose - boolean: True for prints, False otherwise
+    
+    Run loop k, fast=False style
+    """
+    world.redo_loop = True
+    while world.redo_loop:
+        world.redo_loop = False
+        if verbose:
+            print("go loop", k)
+        world.loopk_population(k-1, k, k-1, k)
+        world.loopk_capital(k-1, k, k-1, k)
+        world.loopk_agriculture(k-1, k, k-1, k)
+        world.loopk_pollution(k-1, k, k-1, k)
+        world.loopk_resource(k-1, k, k-1, k)
+
+
+# -- CONTROL MAPS --
+
 def set_control_to_constant(control_name, value, world3):
     if control_name=="FIOAC":
         world3.fioac_control = lambda _: value # set the fioac control to constantly value
