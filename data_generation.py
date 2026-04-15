@@ -38,9 +38,9 @@ PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 FAST = True
 NOISE = False
-RUNS = 10
+RUNS = 1000
 
-ID = "2" # training set ID
+ID = "1" # training set ID
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR, noise=NOISE)
@@ -74,10 +74,7 @@ def reward_HSDI(world):
 # Select here which reward function to use throughout the rest of the file
 reward_dict = {"HSDI" : reward_HSDI,
                "HWI" : reward_hwi,
-               "ddiff" : reward_ddiff,
-               "doughnut" : reward_doughnut,
-               "doughnut2" : reward_doughnut2,
-               "inv_ef" : reward_inv_ef}
+               "doughnut" : reward_doughnut}
 
 REWARD_NAME = "doughnut"
 REWARD_FUNC = reward_dict[REWARD_NAME]
@@ -97,7 +94,7 @@ def get_mu_sigma(world, variable):
         the mean and half of the standard deviation of the variable's data points over the whole run of the World3 object world
     """
     data = getattr(world, variable)
-    mean = data[0] # CHANGE TO data.mean()??
+    mean = data[0]
     std = np.std(data) / 2 # regularisation, prevent extreme values
     return mean, std
 

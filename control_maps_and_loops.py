@@ -61,6 +61,8 @@ def set_control_to_constant(control_name, value, world3):
         world3.fioai_control = lambda _: value
     elif control_name=="PPGF":
         world3.ppgf_control = lambda _: value
+    elif control_name=="FIOAS":
+        world3.fioas_control = lambda _: value
 
 def set_control_value_list(control_name, value, world3, k):
     if control_name=="FIOAC":
@@ -81,6 +83,8 @@ def set_control_value_list(control_name, value, world3, k):
         world3.fioai_control_values[k] = value
     elif control_name=="PPGF":
         world3.ppgf_control_values[k] = value
+    elif control_name=="FIOAS":
+        world3.fioas_control_values[k] = value
 
 def get_default(control_name, world):
     if control_name=="FIOAC":
@@ -101,6 +105,8 @@ def get_default(control_name, world):
         return world.fioai[0]
     elif control_name=="PPGF":
         return world.ppgf[0]
+    elif control_name=="FIOAS":
+        return world.fioas[0]
 
 def get_control_value_list(control_name, world):
     if control_name=="FIOAC":
@@ -121,3 +127,5 @@ def get_control_value_list(control_name, world):
         return world.fioai_control_values
     elif control_name=="PPGF":
         return world.ppgf_control_values
+    elif control_name=="FIOAS":
+        return world.fioas_control_values
