@@ -1,8 +1,8 @@
 [
 {
     "num_ctrl_funcs": 1,
-    "ctrl1": "DCFSN",
-    "grid_size_1": 5,
+    "ctrl1": "FIOAA",
+    "grid_size_1": 15,
     "noise": false,
     "threshold": 1950,
     "lookahead": 20

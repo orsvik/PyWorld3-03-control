@@ -80,7 +80,6 @@ def ppgf_control(t, world, k):
 
 
 
-
 def dppolx_control(t, world, k):
     return 1.2
     # no visable change
@@ -114,6 +113,8 @@ world3.set_world3_noise_stds()
 world3.set_world3_delay_functions()
 world3.run_world3(fast=True) 
 
+fracsum = world3.fioas + world3.fioai + world3.fioaa + world3.fioac
+print(fracsum)
 
 
 plot_world_variables(
