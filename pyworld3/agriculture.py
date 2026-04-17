@@ -774,7 +774,7 @@ class Agriculture:
         self.ifpc[k] = self.ifpc_control_values[k] * self.ifpc_f(self.iopc[k])
 
 
-    @requires(["tai"], ["io", "fioaa"])
+    @requires(["tai"], ["io", "fioaa", "fioai"])
     def _update_tai(self, k):
         """
         From step k requires: IO FIOAA

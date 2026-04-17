@@ -198,7 +198,7 @@ class Capital:
         """
         default_control_functions = {
             "icor_control": lambda _: 3,
-            "fioac_control": lambda _: 0.43,
+            "fioac_control": lambda _: 1.0,  # used to be 0.43
             "isopc_control": lambda _: 1.0,
             "scor_control": lambda _: 1,
             "alic_control": lambda _: 14,
@@ -206,13 +206,13 @@ class Capital:
             "fioas_control": lambda _: 1.0,
             "ciopc_control": lambda _: 1,
             "iopc_control": lambda _: 1,
-            "fioai_control": lambda _: 1,
+            "fioai_control": lambda _: 1.0,
         }
 
         _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2):
+                               iopcd=400, lfpf=0.75, lufdt=2, fioac_value=0.43):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -224,6 +224,7 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
+        self.fioac_value = fioac_value
 
     def init_capital_variables(self):
         """
@@ -478,10 +479,7 @@ class Capital:
         self._update_icor(k)
         self._update_io(k) # need fcaor from res
         self._update_iopc(k) # need pop from pop
-        self._update_fioac(k)
-        #added, 2004 update
-        self._update_cio(k)
-        self._update_ciopc(k) # need pop from pop
+        
         # service subsector
         self._update_state_sc(k, j, jk)
         self._update_isopc(k)
@@ -490,13 +488,25 @@ class Capital:
         self._update_scor(k)
         self._update_so(k)
         self._update_sopc(k) # need pop from pop
+
+        self._update_fioac(k)
+
         self._update_fioas(k)
+
+        self._update_fioai(k) # need fioaa from agr
+
+
+        #added, 2004 update
+        self._update_cio(k)
+        self._update_ciopc(k) # need pop from pop
+
+        
         self._update_scir(k, kl)
 
 
         
         # back to industrial sector
-        self._update_fioai(k) # need fioaa from agr
+        
         self._update_icir(k, kl)
         # back to job subsector
         self._update_jpicu(k)
@@ -598,12 +608,17 @@ class Capital:
         """
         From step k requires: IOPC
         """
-        
+
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
+
+        self.fioacc[k] = self.fioac_value
+
+        self.fioac[k] = clip(self.fioac_control(k)*clip(self.fioacv[k], self.fioacc[k], self.time[k], self.iet), 0, 1)
         
-        self.fioac[k] = clip(self.fioacv[k], self.fioac_control_values[k], self.time[k],
-                             self.iet)
+        #self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
+        #self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
+        
+        #self.fioac[k] = clip(self.fioacv[k], self.fioac_control_values[k], self.time[k], self.iet)
 
     @requires(["sc"])
     def _update_state_sc(self, k, j, jk):
@@ -700,7 +715,15 @@ class Capital:
         From step k requires: FIOAA FIOAS FIOAC
         """
 
-        self.fioai[k] = clip(self.fioai_control(k) * (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)
+        diff = self.fioaa[k] - self.fioas[k] - self.fioac[k] - 1
+
+        if diff > 0:
+
+            self.fioaa[k]  = self.fioaa[k] - diff/3 
+            self.fioas[k]  = self.fioas[k] - diff/3 
+            self.fioac[k]  = self.fioac[k] - diff/3 
+
+        self.fioai[k] = clip(self.fioai_control(k) * (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)  # not recommended to use a control func on (where would the money come from?)
 
     @requires(["icir"], ["io", "fioai"])
     def _update_icir(self, k, kl):

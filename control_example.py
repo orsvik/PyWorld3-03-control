@@ -37,8 +37,7 @@ def lymap_control(t, world, k):
 def llmy_control(t, world, k):
     return 1
 
-def fioaa_control(t, world, k):
-    return 1
+
 
 def scor_control(t, world, k):
     return 0.8
@@ -50,8 +49,7 @@ def alsc_control(t, world, k):
     return 22
 
 
-def fioas_control(t, world, k):
-    return 1.1
+
 
 def nruf_control(t, world, k):
     return 1
@@ -81,8 +79,7 @@ def ppgf_control(t, world, k):
     return 1.2
 
 
-def fioac_control(t, world, k):
-    return 0.45
+
 
 def dppolx_control(t, world, k):
     return 1.2
@@ -96,14 +93,26 @@ def fioai_control(t, world, k):
 def fiald_control(t, world, k):
     return 1.1
 
-world3 = World3(year_max=2100, noise=True)
-world3.set_world3_control()
+
+
+
+def fioas_control(t, world, k):
+    return 1
+
+def fioaa_control(t, world, k):
+    return 0.9
+
+def fioac_control(t, world, k):
+    return 1.1
+
+world3 = World3(year_max=2100, noise=False)
+world3.set_world3_control(fioaa_control=fioaa_control, fioac_control=fioac_control, fioas_control=fioas_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_noise_stds()
 world3.set_world3_delay_functions()
-world3.run_world3(fast=True) # test fast=True
+world3.run_world3(fast=True) 
 
 
 

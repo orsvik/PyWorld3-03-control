@@ -144,7 +144,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                               lpd=20, mtfn=12, pet=4000, rlt=30, sad=20, zpgt=4000,
                               
                               ici=2.1e11, sci=1.44e11, iet=4000,
-                              iopcd=400, lfpf=0.75, lufdt=2,
+                              iopcd=400, lfpf=0.75, lufdt=2, fioac_value=0.43,
                               
                               ali=0.9e9, pali=2.3e9, lfh=0.7,
                               palt=3.2e9, pl=0.1, 
@@ -168,7 +168,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.init_population_constants(p1i, p2i, p3i, p4i, fcest, hsid,
                                        ieat, len, lpd, mtfn, pet, rlt, sad,
                                        zpgt)
-        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt)
+        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt, fioac_value)
         self.init_agriculture_constants(ali, pali, lfh, palt, pl, 
                                         io70, lyf1, sd, uili, alln,
                                         uildt, lferti, ilf, fspd, sfpc, dfr)
@@ -392,9 +392,8 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_icor(k)
         self._update_io(k) # need fcaor from res
         self._update_iopc(k) # need pop from pop
-        self._update_fioac(k)
-        self._update_cio(k)
-        self._update_ciopc(k) # need pop from pop
+        
+        
         self._update_state_sc(k, j, jk)
         self._update_isopc(k)
         self._update_alsc(k)
@@ -402,8 +401,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_scor(k)
         self._update_so(k)
         self._update_sopc(k) # need pop from pop
-        self._update_fioas(k)
-        self._update_scir(k, kl)
+
+
+
+        
 
         
 
@@ -439,7 +440,26 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self._update_fiald(k)
         self._update_f(k)
         self._update_fpc(k) # need pop from pop
+
         self._update_fioaa(k) 
+
+        # more from cap
+
+        self._update_fioac(k)
+        self._update_fioas(k)  
+
+        
+        self._update_cio(k)
+        self._update_ciopc(k) # need pop from pop
+        self._update_scir(k, kl)
+
+        # fioas, fioac together with fioaa
+        # fioai directly after
+
+
+
+        # agr continues
+
         self._update_tai(k) # need io from cap
         self._update_ldr(k, kl)
         self._update_cai(k)
