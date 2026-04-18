@@ -40,7 +40,8 @@ FAST = True
 NOISE = False
 RUNS = 50
 
-ID = "2" # training set ID
+ID = "3" # training set ID
+
 
 # Standard run, used for randomising initial state
 world_standard = World3(year_max=MAX_YEAR, noise=NOISE)
