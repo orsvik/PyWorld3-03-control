@@ -86,6 +86,7 @@ def dppolx_control(t, world, k):
 
 
 def fioai_control(t, world, k):
+    return 1
     return 0.9
 
 
@@ -105,7 +106,7 @@ def fioac_control(t, world, k):
     return 1
 
 world3 = World3(year_max=2100, noise=False)
-world3.set_world3_control(fioaa_control=fioaa_control, fioac_control=fioac_control, fioas_control=fioas_control)
+world3.set_world3_control()
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
@@ -113,6 +114,19 @@ world3.set_world3_noise_stds()
 world3.set_world3_delay_functions()
 world3.run_world3(fast=True) 
 
+print("FIOAA")
+print(world3.fioaa)
+
+print("FIOAC")
+print(world3.fioac)
+
+print("FIOAI")
+print(world3.fioai)
+
+print("FIOAS")
+print(world3.fioas)
+
+print("fracsum")
 fracsum = world3.fioas + world3.fioai + world3.fioaa + world3.fioac
 #print(fracsum)
 
