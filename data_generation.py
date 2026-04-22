@@ -36,11 +36,11 @@ MIN_YEAR = 1900
 MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
-FAST = True
+FAST = True 
 NOISE = False
-RUNS = 50
+RUNS = 1000    # 1000 run for results
 
-ID = "3" # training set ID
+ID = "1" # training set ID  # 1 to 5 for 5 versions of each
 
 
 # Standard run, used for randomising initial state

@@ -611,13 +611,13 @@ class Capital:
 
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
 
-        print(self.fioacv[k])
+        #print(self.fioacv[k])
 
         self.fioacc[k] = self.fioac_value
 
         self.fioac[k] = clip(self.fioac_control(k)*clip(self.fioacv[k], self.fioacc[k], self.time[k], self.iet), 0, 1)
 
-        print(self.fioac[k])
+        #print(self.fioac[k])
         
         #self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
         #self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
