@@ -719,13 +719,13 @@ class Capital:
         From step k requires: FIOAA FIOAS FIOAC
         """
 
-        diff = self.fioaa[k] - self.fioas[k] - self.fioac[k] - 1
+        diff = 1 - self.fioaa[k] - self.fioas[k] - self.fioac[k] 
 
-        if diff > 0:
+        if diff < 0:
 
-            self.fioaa[k]  = self.fioaa[k] - diff/3 
-            self.fioas[k]  = self.fioas[k] - diff/3 
-            self.fioac[k]  = self.fioac[k] - diff/3 
+            self.fioaa[k]  = self.fioaa[k] + diff/3 
+            self.fioas[k]  = self.fioas[k] + diff/3 
+            self.fioac[k]  = self.fioac[k] + diff/3 
 
         self.fioai[k] = clip(self.fioai_control(k) * (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)  # not recommended to use a control func on (where would the money come from?)
 
