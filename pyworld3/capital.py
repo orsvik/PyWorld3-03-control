@@ -688,7 +688,7 @@ class Capital:
         self.fioas[k] = clip(self.fioas_control(k) * self.fioas_f(self.sopc[k] / self.isopc[k]), 0, 1)
     
     #added, 2004 update
-    @requires(["cio"],["fioac","io"])
+    @requires(["cio"],["fioac","io", "fioai"])
     def _update_cio(self, k):
         """
         From step k requires: fioas, io
@@ -705,7 +705,7 @@ class Capital:
         
         self.ciopc[k] = self.ciopc_control(k) * self.cio[k] / self.pop[k]
     
-    @requires(["scir"], ["io", "fioas"])
+    @requires(["scir"], ["io", "fioas", "fioai"])
     def _update_scir(self, k, kl):
         """
         From step k requires: IO FIOAS
@@ -727,7 +727,8 @@ class Capital:
             self.fioas[k]  = self.fioas[k] + diff/3 
             self.fioac[k]  = self.fioac[k] + diff/3 
 
-        self.fioai[k] = clip(self.fioai_control(k) * (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)  # not recommended to use a control func on (where would the money come from?)
+        self.fioai[k] = clip((1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)
+        #self.fioai[k] = clip(self.fioai_control(k) * (1 - self.fioaa[k] - self.fioas[k] - self.fioac[k]), 0, 1)  # not recommended to use a control func on (where would the money come from?)
 
     @requires(["icir"], ["io", "fioai"])
     def _update_icir(self, k, kl):
