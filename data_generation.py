@@ -40,7 +40,7 @@ FAST = True
 NOISE = False
 RUNS = 1000    # 1000 run for results
 
-ID = "1" # training set ID  # 1 to 5 for 5 versions of each
+ID = "2" # training set ID  # 1 to 5 for 5 versions of each
 
 
 # Standard run, used for randomising initial state
