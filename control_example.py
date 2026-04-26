@@ -148,9 +148,9 @@ plot_world_variables(
     [world3.nrfr, world3.iopc, world3.fpc, world3.pop, world3.ppolx],
     ["NRFR", "IOPC", "FPC", "POP", "PPOLX"],
     [[0, 1], [0, 1e3], [0, 1e3], [0, 16e9], [0, 32]],
-    img_background="./img/fig7-7.png",
+    #img_background="./img/fig7-7.png",
     figsize=(7, 5),
-    title="One standard world with noise - General",
+    title="One standard run with noise - General",
 )
 plt.show()
 
