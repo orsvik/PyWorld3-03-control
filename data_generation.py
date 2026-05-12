@@ -37,10 +37,10 @@ MAX_YEAR = 2100
 PLOT = False # toggle plots and prints
 DEBUG_MODE = False # toggle debug mode, data does not get saved to file (to prevent overwriting better/useful data that may have taken a long time to generate)
 FAST = True 
-NOISE = False
+NOISE = True
 RUNS = 1000    # 1000 run for results
 
-ID = "23" 
+ID = "33" 
 
 
 # Standard run, used for randomising initial state
