@@ -90,7 +90,7 @@ def get_default(control_name, world):
     if control_name=="FIOAC":
         return world.fioac[0]
     elif control_name=="ISOPC":
-        return world.isopc[0]
+        return 1.0
     elif control_name=="DCFSN":
         return world.dcfsn[0]
     elif control_name=="IOPC":
