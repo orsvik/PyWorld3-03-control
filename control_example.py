@@ -105,7 +105,7 @@ def fioaa_control(t, world, k):
 def fioac_control(t, world, k):
     return 1
 
-world3 = World3(year_max=2100, noise=True)
+world3 = World3(year_max=2100, noise=False)
 world3.set_world3_control()
 world3.init_world3_constants()
 world3.init_world3_variables()
