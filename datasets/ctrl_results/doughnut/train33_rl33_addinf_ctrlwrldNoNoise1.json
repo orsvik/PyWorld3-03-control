@@ -1,0 +1,12 @@
+[
+{
+    "num_ctrl_funcs": 2,
+    "ctrl1": "DCFSN",
+    "ctrl2": "ISOPC",
+    "grid_size_1": 15,
+    "grid_size_2": 15,
+    "noise": false,
+    "threshold": 1950,
+    "lookahead": 20
+}
+]
